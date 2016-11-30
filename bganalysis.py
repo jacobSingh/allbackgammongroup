@@ -5,16 +5,23 @@ import os
 import requests
 import shlex, subprocess
 import shutil
+import logging
+import configparser
 
 def remove_dir(path):
     if os.path.isdir(path):
         shutil.rmtree(path)
 
 
-ghpages = "/Users/jacob/stuff/abg/bg-stat-export"
-gnubg = "/Applications/gnubg.app/Contents/MacOS/local/bin/gnubg"
 
+config=configparser.ConfigParser()
+config.read('./abg.ini')
+ghpages=config.get("abg_eval","ghpages")
+gnubg=config.get("abg_eval","gnubg")
 filename = os.path.expanduser(sys.argv[1])
+
+if not (ghpages and gnubg):
+    raise Exception("ghpages and gnubg not set.  Make an abg.ini file")
 
 f = NamedTemporaryFile(delete=False, mode="w")
 
