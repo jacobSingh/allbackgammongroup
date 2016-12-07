@@ -43,13 +43,13 @@ class ABG:
         self.tournaments=await self.account.tournaments.index(**params)
 
     async def get_participants(self, tournament):
-        participants=await account.participants.index(tournament["id"])
+        participants=await self.account.participants.index(tournament["id"])
         for participant in participants:
             self.participants[participant['id']]=participant
 
     async def get_matches(self, tournament, **params):
         params['state']="complete"
-        return await account.matches.index(tournament['id'], **params)
+        return await self.account.matches.index(tournament['id'], **params)
 
     def add_prefix_to_dictionary(self, dictionary, prefix):
         new_dictionary={}
@@ -61,7 +61,7 @@ class ABG:
     async def flatten(self, writer, **params):
         rows=[];
         for tournament in self.tournaments:
-            await abg.get_participants(tournament)
+            await self.get_participants(tournament)
             for match in await self.get_matches(tournament):
                 row={}
                 row.update(tournament)
@@ -105,6 +105,8 @@ class ABG:
         await self.get_all_tournaments(**params)
         l.info("attempting to move {} tournaments".format(len(self.tournaments)))
         for tournament in self.tournaments:
+            if (moved > 100):
+                return;
             if (tournament["subdomain"] == subdomain):
                 l.info("not moving {}".format(tournament["url"]))
             else:
@@ -180,12 +182,15 @@ def main(argv):
 
     if (args[0] == "move"):
         abg=ABG(account)
-        loop.run_until_complete(abg.move_tournaments("allbackgammon", created_after = "2016-09-01",subdomain = ""))
+        loop.run_until_complete(abg.move_tournaments("allbackgammon"))
     elif(args[0] == "movetest"):
         abg=ABG(account, test=True)
         loop.run_until_complete(abg.move_tournaments("allbackgammon"))
     elif(args[0] == "rip"):
+        abg=ABG(account)
         writer=ABG_CSV_Writer("/tmp/out.csv")
+        loop.run_until_complete(abg.get_all_tournaments(subdomain="allbackgammon"))
+        loop.run_until_complete(abg.flatten(writer, exclude_fields=['description', 'description-source']))
     else:
         raise Exception("Provide a command (move | movetest | rip)")
 
@@ -193,25 +198,4 @@ def main(argv):
 if __name__ == "__main__":
    main(sys.argv[1:])
 
-
-
-
-
-exit()
-
-
-loop.run_until_complete(abg.move_tournament(
-    "allbackgammon", tournament_url="swissy33"))
-
-
-# Blocking call which returns when the hello_world() coroutine is done
-loop.run_until_complete(abg.get_all_tournaments(
-    created_after="2016-09-01", subdomain=""))
-pp(abg.tournaments)
-exit()
-
-loop.run_until_complete(abg.flatten(writer, exclude_fields=[
-                        'description', 'description-source']))
-
-loop.close()
 exit()

@@ -5,8 +5,12 @@ import datetime
 import re
 import math
 import logging
+import re
 #%matplotlib inline
 import matplotlib.pyplot as plt
+
+#@TODO: Make this a param
+data_dir = "./data"
 
 
 logging.basicConfig(filename='/tmp/example.log')
@@ -89,6 +93,32 @@ def build_players(abg):
     players["last_updated"] = None
     players["last_updated"] = pd.to_datetime(players["last_updated"])
     return players
+
+def tournament_type_finder(tournament_name):
+    tournament_types = {
+        "Goldilocks":["Goldilocks"],
+        "Masters":["Masters"],
+        "Ironman":["Iron"],
+        "Seriously Fun Swiss":["Seriously Fun"],
+        "Travis":["t.r.a", "travis"],
+        "Stair Step":["Stair"],
+        "Champion and Challenger":["Challenger"],
+        "Spur of the moment": ["Spur"],
+        "Mini": ["Mini"]
+    }
+
+    for val,search_strings in tournament_types.items():
+        for search_string in search_strings:
+            r = re.compile(search_string, re.IGNORECASE)
+            if(r.match(tournament_name)):
+                return val
+    return "general"
+
+def set_tournament_types(df):
+    df["tournament_type"] = df["name"].apply(tournament_type_finder)
+    return df
+
+
 
 class ELO:
 
@@ -233,25 +263,25 @@ class ABGStats:
         self.matches["winner_elo_in"] = self.matches["winner_elo"] - self.matches["winner_elo_change"]
         self.matches["loser_elo_in"] = self.matches["loser_elo"] - self.matches["loser_elo_change"]
 
-
 l.setLevel(logging.WARN)
 
 abg = pd.read_csv('data/abg.csv', parse_dates=["match-updated-at", "created-at", "completed-at", "match-updated-at", "created-at"], dtype={"match-scores-csv": str, "predict-the-losers-bracket": str, "start-at": str,"match-underway-at": str })
 abg = clean_matches(abg)
+# Finds the "type" or group of tournament
+abg = set_tournament_types(abg)
 abg = abg.loc[abg["match-updated-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
-
 players_df = build_players(abg)
-
 #players2_df = players1_df.copy()
 abg1 = ABGStats(abg.copy(), players_df.copy())
 
+#ELO Calcs across all matches
 abg1.standard_elo_calc()
 abg1.add_running_win_loss_columns()
-abg1.export("/tmp/all_matches")
+abg1.export(data_dir + "/all_matches")
 
 abgdf_2 = abg.copy()
-abgdf_2 = abgdf_2[abgdf_2["name"].str.contains("Challenger") == False]
+abgdf_2 = abgdf_2[abgdf_2["tournament_type"] != 'Champion and Challenger']
 abg2 = ABGStats(abgdf_2, players_df.copy())
 abg2.standard_elo_calc()
 abg2.add_running_win_loss_columns()
-abg2.export("/tmp/all_but_champ")
+abg1.export(data_dir + "/all_but_champ")

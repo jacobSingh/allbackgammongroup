@@ -40,10 +40,9 @@ new_dir = ghpages + "/" + match_name
 remove_dir(new_dir)
 os.rename(output, new_dir)
 
-
-subprocess.Popen(["git", "add", os.path.basename(match_name)], cwd=ghpages).wait()
-subprocess.Popen(["git", "commit", "-m", "Added {}".format(match_name)], cwd=ghpages).wait()
 subprocess.Popen(["./_makeindex.sh"], cwd=ghpages).wait()
+subprocess.Popen(["git", "add", "index.html", os.path.basename(match_name)], cwd=ghpages).wait()
+subprocess.Popen(["git", "commit", "-m", "Added {}".format(match_name)], cwd=ghpages).wait()
 subprocess.Popen(["git", "push"], cwd=ghpages).wait()
 
 
