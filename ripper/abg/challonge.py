@@ -3,6 +3,9 @@ import asyncio
 from challonge import Account
 from pprint import pprint as pp
 import logging
+import dateutil.parser
+import pytz
+utc=pytz.UTC
 
 l = logging.getLogger('abg')
 
@@ -42,6 +45,9 @@ class ABG_Challonge:
         for tournament in self.tournaments:
             await self.get_participants(tournament)
             for match in await self.get_matches(tournament):
+                if "start_from_date" in params:
+                    if (match["updated-at"] < utc.localize(params["start_from_date"])):
+                        continue
                 row={}
                 row.update(tournament)
 

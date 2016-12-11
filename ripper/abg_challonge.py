@@ -7,6 +7,8 @@ import sys
 import os
 import configparser
 import getopt
+import dateutil.parser
+import datetime
 from abg.writers import CSV_Writer
 from abg.challonge import ABG_Challonge
 
@@ -51,7 +53,11 @@ def main(argv):
             if (os.path.exists(output_file)):
                 l.warn("Output file {} exists, appending to it.".format(output_file))
         elif opt in ('-d'):
-            created_after_date = arg
+            start_from_date = dateutil.parser.parse(arg)
+            created_after_date = (start_from_date - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
+            l.info("Taking tournaments created less after {} and recording matches since {}".format(created_after_date, start_from_date))
+
+            # = dateutil.parser.parse(arg)
 
     if (output_file is None):
         output_csv = sys.stdout
@@ -84,9 +90,9 @@ def main(argv):
     elif(args[0] == "rip"):
         abg = ABG_Challonge(username, api_key)
         writer = CSV_Writer(output_csv)
-        
+
         # @TODO Param this
-        params = {'subdomain': "allbackgammon", 'status': "complete"}
+        params = {'subdomain': "allbackgammon"}
         if (created_after_date):
             params['created_after'] = created_after_date
 
@@ -94,7 +100,7 @@ def main(argv):
             #@TODO: Yes, but it will require some refactoring which is a PITA
         loop.run_until_complete(abg.get_all_tournaments(**params))
         loop.run_until_complete(abg.flatten(writer, exclude_fields=[
-                                'description', 'description-source']))
+                                'description', 'description-source'], start_from_date=start_from_date))
     else:
         raise Exception("Provide a command (move | movetest | rip)")
 
