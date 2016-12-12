@@ -30,12 +30,13 @@ def main(argv):
     exclude_tournaments = []
     input_csv = None
     elo_rampup = 400
+    players_file = None
     if os.path.exists('./abg.ini'):
         config=configparser.ConfigParser()
         config.read('./abg.ini')
 
     try:
-      opts, args= getopt.getopt(argv, "i:e:f:r:")
+      opts, args=getopt.getopt(argv, "i:e:f:r:")
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -45,9 +46,11 @@ def main(argv):
         elif opt in ('-i'):
             include_tournaments.append(arg)
         elif opt in ('-e'):
-            include_tournaments.append(arg)
+            exclude_tournaments.append(arg)
         elif opt in ('-r'):
             elo_rampup = arg
+        elif opt in ('-p'):
+            players_file = arg
 
     # @todo: Add actions to clean and actions to computer ELO.
     # @TODO: consider making ELO calc generic
@@ -64,12 +67,23 @@ def main(argv):
     abg = clean_matches(abg)
     # Finds the "type" or group of tournament
     abg = set_tournament_types(abg)
+    if include_tournaments and exclude_tournaments:
+        raise Exception("You can use Include or Exclude tournaments, not both")
+    if include_tournaments:
+        abg = abg[abg[tournament_type].isin(include_tournaments)]
+    if exclude_tournaments:
+        abg = abg[abg[tournament_type].isin(~exclude_tournaments)]
 
     # Start date.... Should probably fix this in a param
     # @TODO: Param this.
     abg = abg.loc[abg["match-updated-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
-    players_df = build_players(abg)
-    #players2_df = players1_df.copy()
+    if (players_file and os.path.exists(players_file)):
+        players_df = pd.read_csv(players_file)
+    else:
+        players_df = build_players(abg)
+
+    players_df.set_index("player_name")
+
     abg1 = ABG_Stats(abg.copy(), players_df.copy())
 
     #ELO Calcs across all matches
