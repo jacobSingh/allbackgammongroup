@@ -107,26 +107,30 @@ def set_tournament_types(df):
 
 class ABG_Stats:
 
-    def __init__(self, matches, players, rampup = 400):
+    def __init__(self, matches, playersdf, rampup = 400):
         self.matches = matches
-        self.players = players
+        self.players = playersdf.to_dict()
         self.elo = ELO(rampup)
         self.first_row_done = False
 
     def change_player_elo(self, player_name, new_elo, xp, date):
-        self.players.loc[self.find_by_name(player_name).index,"ELO"] = new_elo
-        self.players.loc[self.find_by_name(player_name).index,"xp"] = self.players.loc[self.find_by_name(player_name).index,"xp"] + xp
-        #players.loc[find_by_name(player_name).index,"last_updated"] = date
+        self.players["ELO"][player_name] = new_elo
+        self.players["xp"][player_name] += xp
 
     def find_by_name(self, name):
-        return self.players.loc[self.players['player_name'] == name]
+        out = {}
+        for k, v in self.players.items():
+            out[k] = v[name]
+        return out
 
     def standard_elo_calc(self):
         self.matches[['player1_ELO_change','player2_ELO_change', "player1_ELO", "player2_ELO"]] = self.matches.apply(self.set_elo, axis=1)
-        self.players.sort_values("ELO", inplace=True, ascending=False)
 
     def export(self, output_directory):
-        self.players.to_csv(open(output_directory + "/players_elo.csv", "w"))
+        playersdf = pd.DataFrame().from_dict(self.players)
+
+        playersdf.sort_values("ELO", inplace=True, ascending=False)
+        playersdf.to_csv(open(output_directory + "/players_elo.csv", "w"))
         self.matches.to_csv(open(output_directory + "/match_log.csv", "w"))
 
     def set_elo(self, row):
@@ -177,9 +181,6 @@ class ABG_Stats:
 
         l.debug("Recorded match between {} and {} changed ELOs by {} and {}".format(
         player1["name"], player2["name"], float(player1_change), float(player2_change)))
-
-        if (self.set_elo.__func__.counter % 50 == 0):
-            l.info("Rows: {}, ELO mean: {}".format(self.set_elo.__func__.counter,np.mean(self.players["ELO"])))
 
         return pd.Series([player1_change, player2_change, player1_new_elo, player2_new_elo])
 

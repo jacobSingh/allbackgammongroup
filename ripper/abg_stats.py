@@ -9,6 +9,7 @@ from abg.stats import ABG_Stats, clean_matches, set_tournament_types, build_play
 import datetime
 
 l = logging.getLogger('abg')
+l.setLevel('WARN')
 l.debug('Running data processing')
 
 def parse_tournament_types(opt):
@@ -82,7 +83,7 @@ def main(argv):
     else:
         players_df = build_players(abg)
 
-    players_df.set_index("player_name")
+    players_df = players_df.set_index("player_name")
 
     abg1 = ABG_Stats(abg.copy(), players_df.copy())
 
