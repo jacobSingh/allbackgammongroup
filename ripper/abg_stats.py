@@ -71,9 +71,9 @@ def main(argv):
     if include_tournaments and exclude_tournaments:
         raise Exception("You can use Include or Exclude tournaments, not both")
     if include_tournaments:
-        abg = abg[abg[tournament_type].isin(include_tournaments)]
+        abg = abg[abg["tournament_type"].isin(include_tournaments)]
     if exclude_tournaments:
-        abg = abg[abg[tournament_type].isin(~exclude_tournaments)]
+        abg = abg[abg["tournament_type"].isin(exclude_tournaments) == False]
 
     # Start date.... Should probably fix this in a param
     # @TODO: Param this.

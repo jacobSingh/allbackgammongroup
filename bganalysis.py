@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from tempfile import NamedTemporaryFile, mkdtemp
 import sys
 from subprocess import call
