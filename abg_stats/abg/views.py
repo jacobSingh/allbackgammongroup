@@ -73,7 +73,7 @@ def get_main_elo_table_html(df):
         'Player': lambda x: '<a href="{}">{}</a>'.format(url_for('abg.show_player_stats', player_name=x), x)
     }
     pd.set_option('display.max_colwidth', 100)
-    return df.to_html(formatters=formatters, escape=False, index=False, float_format='%.0f')
+    return df.to_html(formatters=formatters, escape=False, float_format='%.0f')
 
 
 @blueprint.route('/', methods=['GET', 'POST'])
