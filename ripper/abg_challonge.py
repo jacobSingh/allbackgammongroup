@@ -25,6 +25,7 @@ def main(argv):
         username = None
         api_key = None
         created_after_date = None
+        start_from_date = None
 
         inifile = "./abg.ini"
         for opt, arg in opts:

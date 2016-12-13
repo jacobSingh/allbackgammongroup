@@ -46,7 +46,7 @@ class ABG_Challonge:
         for tournament in self.tournaments:
             await self.get_participants(tournament)
             for match in await self.get_matches(tournament):
-                if "start_from_date" in params:
+                if "start_from_date" in params and params["start_from_date"] is not None:
                     if (match["updated-at"] < utc.localize(params["start_from_date"])):
                         continue
                 row={}
