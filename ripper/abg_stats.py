@@ -84,7 +84,7 @@ def main(argv):
         players_df = build_players(abg)
 
     players_df = players_df.set_index("player_name")
-    df.index.name = 'player_name'
+    players_df.index.name = 'player_name'
 
     abg1 = ABG_Stats(abg.copy(), players_df.copy())
 
