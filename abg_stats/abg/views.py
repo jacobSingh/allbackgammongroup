@@ -50,7 +50,7 @@ def show_player_stats(player_name):
     player_matches['ELO'][player_matches['player2-name'] == player_name] = player_matches.loc[player_matches['player2-name'] == player_name]['player2_ELO']
     player_matches = player_matches[['match-updated-at', 'name', 'winner','loser', 'winner_elo_in', 'loser_elo', 'ELO']]
     player_matches.columns=['Date', 'Tournament', 'Winner', 'Loser', 'Winner ELO', 'Loser ELO', 'Player ELO']
-    player = dict(players[players['player_name'] == player_name].iloc[0])
+    player = dict(players.loc[player_name])
 
     # @TODO: fix this column name
     player['name'] = player['player_name']
