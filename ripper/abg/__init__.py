@@ -1,5 +1,6 @@
 
 import logging
+import pandas as pd
 
 logging.basicConfig(filename='/tmp/abg.log')
 l = logging.getLogger("abg")
