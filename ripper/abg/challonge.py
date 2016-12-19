@@ -53,10 +53,17 @@ class ABG_Challonge:
                 row.update(tournament)
 
                 if ((match['player1-id'] or match['player2-id']) not in self.participants):
+                    l.warn("One of the players {} and {} not in participants list".format(match["player1-name"], match["player2-name"]))
                     # pp("There was an error getting players")
                     # pp(tournament)
                     # pp(match)
                     continue
+
+                if (match["has_attachments"] == "true")):
+                    attachments = await self.account.get_attachments(tournament["id"], match["id"])
+                    for (a in attachments):
+                        if (await self.check_for_dq(a) != False):
+                            row["DQ"] = a["description"]
 
                 # Gets all match and player data, adds prefix to it
                 row.update(self.add_prefix_to_dictionary(match, "match-"));
@@ -71,6 +78,11 @@ class ABG_Challonge:
                                                                 if key not in exclude_fields}
                 writer.addRow(row)
         return rows
+
+    async def check_for_dq(self, attachment):
+        if ("ABGDQ" in attachment["description"]):
+            return True
+        return False
 
     async def move_tournament(self, tournament, subdomain):
         l.info("moving {}, currently on {} to {} subdomain".format(tournament["url"], tournament["subdomain"], subdomain))

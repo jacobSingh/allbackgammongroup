@@ -128,11 +128,12 @@ class ABG_Stats:
 
     def export(self, output_directory):
 
-        l.info("Processed {} matches".format(len(self.matches)))
-        l.info("Exported ELO data on {} players".format(len(self.players)))
-
         playersdf = pd.DataFrame().from_dict(self.players)
         playersdf.index.name = "player_name"
+
+        l.info("Processed {} matches".format(len(self.matches)))
+        l.info("Exported ELO data on {} players".format(len(self.playersdf)))
+
 
         playersdf.sort_values("ELO", inplace=True, ascending=False)
         playersdf.to_csv(open(output_directory + "/players_elo.csv", "w"))

@@ -63,7 +63,7 @@ def main(argv):
     if (output_file is None):
         output_csv = sys.stdout
     else:
-        output_csv = open(output_file, "w+")
+        output_csv = open(output_file, "a")
 
     if (api_key is None):
         print(
