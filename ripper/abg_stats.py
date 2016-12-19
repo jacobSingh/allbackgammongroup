@@ -9,8 +9,6 @@ from abg.stats import ABG_Stats, clean_matches, set_tournament_types, build_play
 import datetime
 
 l = logging.getLogger('abg')
-l.setLevel('WARN')
-l.debug('Running data processing')
 
 def parse_tournament_types(opt):
     options = opt.split(",")
@@ -27,6 +25,7 @@ def usage():
     sys.stderr.write('abg_elo.py -i [INCLUDE_TOURNAMENT] -e [EXCLUDE_TOURNAMENT] -f [INPUT_FILE] OUTPUT_DIR')
 
 def main(argv):
+    l.info('Processing matches')
     include_tournaments = []
     exclude_tournaments = []
     input_csv = None
@@ -53,7 +52,7 @@ def main(argv):
         elif opt in ('-p'):
             players_file = arg
 
-    # @todo: Add actions to clean and actions to computer ELO.
+    # @todo: Add actions to clean and actions to compute ELO.
     # @TODO: consider making ELO calc generic
 
     output_dir = args[0]
@@ -64,7 +63,9 @@ def main(argv):
         input_csv = sys.stdin
 
     #@TODO: move to base class
+    l.info("Running with {}, exporting to {}".format(opts, args) )
     abg = read_match_csv(input_csv)
+    l.info("Read in {} matches".format(len(abg)))
     abg = clean_matches(abg)
     # Finds the "type" or group of tournament
     abg = set_tournament_types(abg)
@@ -75,13 +76,14 @@ def main(argv):
     if exclude_tournaments:
         abg = abg[abg["tournament_type"].isin(exclude_tournaments) == False]
 
-    # Start date.... Should probably fix this in a param
+    # Start date to align with Travis.... Should probably fix this in a param
     # @TODO: Param this.
     abg = abg.loc[abg["match-updated-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
     if (players_file and os.path.exists(players_file)):
         players_df = pd.read_csv(players_file)
     else:
         players_df = build_players(abg)
+
 
     players_df = players_df.set_index("player_name")
     players_df.index.name = 'player_name'

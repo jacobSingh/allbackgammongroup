@@ -127,7 +127,12 @@ class ABG_Stats:
         self.matches[['player1_ELO_change','player2_ELO_change', "player1_ELO", "player2_ELO"]] = self.matches.apply(self.set_elo, axis=1)
 
     def export(self, output_directory):
+
+        l.info("Processed {} matches".format(len(self.matches)))
+        l.info("Exported ELO data on {} players".format(len(self.players)))
+
         playersdf = pd.DataFrame().from_dict(self.players)
+        playersdf.index.name = "player_name"
 
         playersdf.sort_values("ELO", inplace=True, ascending=False)
         playersdf.to_csv(open(output_directory + "/players_elo.csv", "w"))
