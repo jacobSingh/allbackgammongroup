@@ -55,7 +55,7 @@ def main(argv):
                 l.warn("Output file {} exists, appending to it.".format(output_file))
         elif opt in ('-d'):
             start_from_date = dateutil.parser.parse(arg)
-            created_after_date = (start_from_date - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
+            created_after_date = (start_from_date - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
             l.info("Taking tournaments created less after {} and recording matches since {}".format(created_after_date, start_from_date))
 
             # = dateutil.parser.parse(arg)

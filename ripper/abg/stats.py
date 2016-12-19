@@ -132,7 +132,7 @@ class ABG_Stats:
         playersdf.index.name = "player_name"
 
         l.info("Processed {} matches".format(len(self.matches)))
-        l.info("Exported ELO data on {} players".format(len(self.playersdf)))
+        l.info("Exported ELO data on {} players".format(len(playersdf)))
 
 
         playersdf.sort_values("ELO", inplace=True, ascending=False)

@@ -59,9 +59,9 @@ class ABG_Challonge:
                     # pp(match)
                     continue
 
-                if (match["has_attachments"] == "true")):
+                if ("has_attachment" in match and match["has_attachment"] == "true"):
                     attachments = await self.account.get_attachments(tournament["id"], match["id"])
-                    for (a in attachments):
+                    for a in attachments:
                         if (await self.check_for_dq(a) != False):
                             row["DQ"] = a["description"]
 
