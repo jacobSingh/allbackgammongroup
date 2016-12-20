@@ -53,7 +53,7 @@ class ABG_Challonge:
                 row.update(tournament)
 
                 if ((match['player1-id'] or match['player2-id']) not in self.participants):
-                    l.warn("One of the players {} and {} not in participants list".format(match["player1-name"], match["player2-name"]))
+                    l.warn("One of the players {} and {} not in participants list".format(match["player1-id"], match["player2-id"]))
                     # pp("There was an error getting players")
                     # pp(tournament)
                     # pp(match)
