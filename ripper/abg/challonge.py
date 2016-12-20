@@ -41,10 +41,13 @@ class ABG_Challonge:
             new_dictionary[prefix + k]=v
         return new_dictionary
 
+    async def get_all_participants(self):
+        for tournament in self.tournaments:
+            await self.get_participants(tournament)
+
     async def flatten(self, writer, **params):
         rows=[];
         for tournament in self.tournaments:
-            await self.get_participants(tournament)
             for match in await self.get_matches(tournament):
                 if "start_from_date" in params and params["start_from_date"] is not None:
                     if (match["updated-at"] < utc.localize(params["start_from_date"])):
