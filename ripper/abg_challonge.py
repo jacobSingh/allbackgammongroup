@@ -101,6 +101,8 @@ def main(argv):
             #@TODO: Yes, but it will require some refactoring which is a PITA
         loop.run_until_complete(abg.get_all_tournaments(**params))
         l.info("Downloaded {} tournaments".format(len(abg.tournaments)))
+        loop.run_until_complete(abg.get_all_participants())
+        l.info("Found {} players".format(len(abg.participants)))
         loop.run_until_complete(abg.flatten(writer, exclude_fields=[
                                 'description', 'description-source'], start_from_date=start_from_date))
     else:
