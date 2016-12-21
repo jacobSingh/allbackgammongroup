@@ -200,7 +200,7 @@ class ABG_Stats:
         self.matches["loser_elo_in"] = 0
         self.matches["loser_elo"] = 0
         self.matches["loser_elo_change"] = 0
-
+    
         self.matches["winner"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1-name"]
         self.matches["winner_elo"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1_ELO"]
         self.matches["winner_elo_change"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1_ELO_change"]

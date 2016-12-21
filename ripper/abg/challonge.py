@@ -9,6 +9,7 @@ utc=pytz.UTC
 import asyncio
 
 l = logging.getLogger('abg')
+l.setLevel("DEBUG")
 
 class ABG_Challonge:
 
@@ -48,7 +49,11 @@ class ABG_Challonge:
     async def flatten(self, writer, **params):
         rows=[];
         for t in self.tournaments:
-            tournament = await self.account.tournaments.show(t["id"], include_matches="1", include_participants="1")
+            try:
+                l.debug("Geting {}".format(t["id"]))
+                tournament = await self.account.tournaments.show(t["id"], include_matches="1", include_participants="1")
+            except RuntimeError:
+                l.error("failed while getting https://api.challonge.com/v1/tournaments/{}.xml".format(t["id"]))
             participants = {}
 
             # @NOTE: THis might be a problem if IDs clash... unlikely
