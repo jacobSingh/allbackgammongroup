@@ -11,6 +11,7 @@ import dateutil.parser
 import datetime
 from abg.writers import CSV_Writer
 from abg.challonge import ABG_Challonge
+from pprint import pprint as pp
 
 l = logging.getLogger('abg')
 l.debug('Starting ABG Challonge')
@@ -55,7 +56,7 @@ def main(argv):
                 l.warn("Output file {} exists, appending to it.".format(output_file))
         elif opt in ('-d'):
             start_from_date = dateutil.parser.parse(arg)
-            created_after_date = (start_from_date - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+            created_after_date = (start_from_date - datetime.timedelta(days=3)).strftime("%Y-%m-%d")
             l.info("Taking tournaments created less after {} and recording matches since {}".format(created_after_date, start_from_date))
 
             # = dateutil.parser.parse(arg)
@@ -96,13 +97,14 @@ def main(argv):
         params = {'subdomain': "allbackgammon"}
         if (created_after_date):
             params['created_after'] = created_after_date
+            params['created_before'] = "2016-10-01"
 
             #@TODO: Should I put this async and stream output?
             #@TODO: Yes, but it will require some refactoring which is a PITA
         loop.run_until_complete(abg.get_all_tournaments(**params))
         l.info("Downloaded {} tournaments".format(len(abg.tournaments)))
-        loop.run_until_complete(abg.get_all_participants())
-        l.info("Found {} players".format(len(abg.participants)))
+        # loop.run_until_complete(abg.get_all_participants())
+        # l.info("Found {} players".format(len(abg.participants)))
         loop.run_until_complete(abg.flatten(writer, exclude_fields=[
                                 'description', 'description-source'], start_from_date=start_from_date))
     else:
