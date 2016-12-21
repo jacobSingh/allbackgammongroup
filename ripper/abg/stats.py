@@ -10,7 +10,7 @@ from abg.elo import ELO
 l = logging.getLogger("abg")
 
 def read_match_csv(file_handle):
-    return pd.read_csv(file_handle, parse_dates=["match-updated-at", "created-at", "completed-at", "match-updated-at", "created-at"], dtype={"match-scores-csv": str, "predict-the-losers-bracket": str, "start-at": str,"match-underway-at": str })
+    return pd.read_csv(file_handle, parse_dates=["match-updated-at", "created-at", "completed-at", "match-updated-at", "created-at"], dtype={"match-scores-csv": str})
 
 def clean_matches(abg):
     abg = abg[["name", "match-id", "match-scores-csv", "completed-at", "match-updated-at", "created-at", "player1-name", "player2-name"]]

@@ -4,7 +4,7 @@ if [ -z $1 ]; then
   exit 2
 fi
 if [ $(ls $1/match_log.csv) ]; then
-  start_date=$(tail -n 1 $1/match_log.csv | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")
+  start_date=$(tail -n 1 $1/../all_abg_log.csv | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")
   ./abg_challonge.py -c ../abg.ini -d"$start_date" -o "$1/../all_abg_log.csv" rip && ./abg_stats.py -e"Champion and Challenger" $1 < $1/../all_abg_log.csv
 else
   ./abg_challonge.py -c ../abg.ini -o "$1/../all_abg_log.csv" rip && ./abg_stats.py -e"Champion and Challenger" $1 < $1/../all_abg_log.csv

@@ -38,7 +38,7 @@ class ABG_Challonge:
     def add_prefix_to_dictionary(self, dictionary, prefix):
         new_dictionary={}
         for k, v in dictionary.items():
-            new_dictionary[prefix + k]=v
+            new_dictionary[prefix + k] = v
         return new_dictionary
 
     async def get_all_participants(self):
@@ -47,20 +47,28 @@ class ABG_Challonge:
 
     async def flatten(self, writer, **params):
         rows=[];
-        for tournament in self.tournaments:
-            for match in await self.get_matches(tournament):
+        for t in self.tournaments:
+            tournament = await self.account.tournaments.show(t["id"], include_matches="1", include_participants="1")
+            participants = {}
+
+            # @NOTE: THis might be a problem if IDs clash... unlikely
+            for player in tournament["participants"]:
+                player = { k: player[k] for k in ["id", "name", "group-player-ids"] }
+                # tournament["participants"] = { k: tournament[your_key] for k in ["id", "name", "matches", "participants"] }
+                if tournament["group-stages-enabled"] == True:
+                    group_player_id_map = player["group-player-ids"][0]
+                    participants[group_player_id_map] = player
+                participants[player["id"]] = player
+
+            for match in tournament["matches"]:
+                if (match["state"] != "complete"):
+                    continue
                 if "start_from_date" in params and params["start_from_date"] is not None:
                     if (match["updated-at"] < utc.localize(params["start_from_date"])):
                         continue
                 row={}
-                row.update(tournament)
-
-                if ((match['player1-id'] or match['player2-id']) not in self.participants):
-                    l.warn("One of the players {} and {} not in participants list".format(match["player1-id"], match["player2-id"]))
-                    # pp("There was an error getting players")
-                    # pp(tournament)
-                    # pp(match)
-                    continue
+                tournament_fields = { k: tournament[k] for k in ["id", "name", "group-stages-enabled", "created-at", "completed-at", "state"] }
+                row.update(tournament_fields)
 
                 if ("has_attachment" in match and match["has_attachment"] == "true"):
                     attachments = await self.account.get_attachments(tournament["id"], match["id"])
@@ -68,18 +76,29 @@ class ABG_Challonge:
                         if (await self.check_for_dq(a) != False):
                             row["DQ"] = a["description"]
 
-                # Gets all match and player data, adds prefix to it
-                row.update(self.add_prefix_to_dictionary(match, "match-"));
-                row.update(self.add_prefix_to_dictionary(
-                    self.participants[match['player1-id']], "player1-"))
-                row.update(self.add_prefix_to_dictionary(
-                    self.participants[match['player2-id']], "player2-"))
+                match_fields = { k: match[k] for k in ["id", "state", "updated-at", "scores-csv"] }
+                row.update(self.add_prefix_to_dictionary(match_fields, "match-"))
+                try:
+                    row["player1-name"] = participants[match['player1-id']]["name"]
+                    row["player2-name"] = participants[match['player2-id']]["name"]
+                    ##Gets all match and player data, adds prefix to it
+                    # row.update(self.add_prefix_to_dictionary(
+                    #     participants[match['player1-id']], "player1-"))
+                    # row.update(self.add_prefix_to_dictionary(
+                    #     participants[match['player2-id']], "player2-"))
 
+                except:
+                    ## Some matches seem to be empty
+                    l.warn("Unable to find participants for https://api.challonge.com/v1/tournaments/{}/matches/{}.json".format(t["id"],match["id"]))
+                    l.warn("Participant IDs {}".format(participants.keys()))
+                    l.warn("IDs searching for {} and {}".format(match["player1-id"], match["player2-id"]))
+                    continue
                 if ("exclude_fields" in params):
                     exclude_fields=params['exclude_fields']
                     row={key: value for key, value in row.items()
                                                                 if key not in exclude_fields}
                 writer.addRow(row)
+
         return rows
 
     async def check_for_dq(self, attachment):

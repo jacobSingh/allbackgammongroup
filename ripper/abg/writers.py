@@ -8,16 +8,11 @@ class Writer:
 class CSV_Writer(Writer):
 
     def __init__(self, output):
-        self.writer=csv.DictWriter(output, ["stupid"])
-        self.headers=None
-
-    def addHeaders(self, keys):
-        self.writer.fieldnames=keys
-        self.writer.writeheader()
-        self.headers=keys
-
+        self.writer=csv.DictWriter(output, fieldnames=["match-id","id","name","player2-name","group-stages-enabled","player1-name","match-updated-at","state","match-state","completed-at","match-scores-csv","created-at"])
+        self.headers = None
 
     def addRow(self, row = {}):
         if (self.headers == None):
-            self.addHeaders(row.keys())
+            self.writer.writeheader()
+            self.headers = True
         self.writer.writerow(row)
