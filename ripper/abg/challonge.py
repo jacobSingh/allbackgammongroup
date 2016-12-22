@@ -68,10 +68,10 @@ class ABG_Challonge:
                 tournament_fields = { k: tournament[k] for k in ["id", "name", "group-stages-enabled", "created-at", "completed-at", "state"] }
                 row.update(tournament_fields)
 
-                if ("has-attachment" in match and match["has-attachment"] == True):
-                    l.info("Checking for attachment")
+                # @TODO: DL the attachment and store it (probably when we switch to SQL)
+                # Process the DQ in stats
+                if ("attachment-count" in match and match["attachment-count"] != 0):
                     attachments = await self.account.get_attachments(tournament["id"], match["id"])
-                    l.info(attachments)
                     for a in attachments:
                         if (await self.check_for_dq(a) != False):
                             row["DQ"] = a["description"]
