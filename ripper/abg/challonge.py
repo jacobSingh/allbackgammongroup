@@ -22,19 +22,13 @@ class ABG_Challonge:
             l.info("starting in live mode")
         self.account=Account(username, api_key)
         self.participants={}
+        # Stores counts for reporting
+        self.counts = {"tournaments":0, "matches_not_added":0, "matches_added":0}
 
     async def get_all_tournaments(self, **params):
         l.debug(str(params))
         self.tournaments=await self.account.tournaments.index(**params)
-
-    async def get_participants(self, tournament):
-        participants=await self.account.participants.index(tournament["id"])
-        for participant in participants:
-            self.participants[participant['id']]=participant
-
-    async def get_matches(self, tournament, **params):
-        params['state']="complete"
-        return await self.account.matches.index(tournament['id'], **params)
+        self.counts["tournaments"] = len(self.tournaments)
 
     def add_prefix_to_dictionary(self, dictionary, prefix):
         new_dictionary={}
@@ -42,9 +36,6 @@ class ABG_Challonge:
             new_dictionary[prefix + k] = v
         return new_dictionary
 
-    async def get_all_participants(self):
-        for tournament in self.tournaments:
-            await self.get_participants(tournament)
 
     async def flatten(self, writer, **params):
         rows=[];
@@ -69,19 +60,23 @@ class ABG_Challonge:
                 if (match["state"] != "complete"):
                     continue
                 if "start_from_date" in params and params["start_from_date"] is not None:
-                    if (match["updated-at"] < utc.localize(params["start_from_date"])):
+                    if (match["completed-at"] < params["start_from_date"]):
+                        self.counts["matches_not_added"] += 1
                         continue
+                self.counts["matches_added"] += 1
                 row={}
                 tournament_fields = { k: tournament[k] for k in ["id", "name", "group-stages-enabled", "created-at", "completed-at", "state"] }
                 row.update(tournament_fields)
 
-                if ("has_attachment" in match and match["has_attachment"] == "true"):
+                if ("has-attachment" in match and match["has-attachment"] == True):
+                    l.info("Checking for attachment")
                     attachments = await self.account.get_attachments(tournament["id"], match["id"])
+                    l.info(attachments)
                     for a in attachments:
                         if (await self.check_for_dq(a) != False):
                             row["DQ"] = a["description"]
 
-                match_fields = { k: match[k] for k in ["id", "state", "updated-at", "scores-csv"] }
+                match_fields = { k: match[k] for k in ["id", "state", "completed-at", "scores-csv"] }
                 row.update(self.add_prefix_to_dictionary(match_fields, "match-"))
                 try:
                     row["player1-name"] = participants[match['player1-id']]["name"]

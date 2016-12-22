@@ -56,7 +56,7 @@ def main(argv):
                 l.warn("Output file {} exists, appending to it.".format(output_file))
         elif opt in ('-d'):
             start_from_date = dateutil.parser.parse(arg)
-            created_after_date = (start_from_date - datetime.timedelta(days=3)).strftime("%Y-%m-%d")
+            created_after_date = (start_from_date - datetime.timedelta(days=60)).strftime("%Y-%m-%d")
             l.info("Taking tournaments created less after {} and recording matches since {}".format(created_after_date, start_from_date))
 
             # = dateutil.parser.parse(arg)
@@ -93,6 +93,14 @@ def main(argv):
         abg = ABG_Challonge(username, api_key)
         writer = CSV_Writer(output_csv)
 
+        # For testing DQs
+        # async def seta(df):
+        #     df.tournaments = [await df.account.tournaments.show(3005693)]
+        # loop.run_until_complete(seta(abg))
+        # loop.run_until_complete(abg.flatten(writer))
+        # exit()
+
+
         # @TODO Param this
         params = {'subdomain': "allbackgammon"}
         if (created_after_date):
@@ -107,6 +115,10 @@ def main(argv):
         # l.info("Found {} players".format(len(abg.participants)))
         loop.run_until_complete(abg.flatten(writer, exclude_fields=[
                                 'description', 'description-source'], start_from_date=start_from_date))
+
+        l.info("Added {} matches".format(abg.counts["matches_added"]))
+        l.info("Skipped {} matches already in the DB".format(abg.counts["matches_not_added"]))
+
     else:
         raise Exception("Provide a command (move | movetest | rip)")
 

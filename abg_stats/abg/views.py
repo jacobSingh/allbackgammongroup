@@ -48,7 +48,7 @@ def show_player_stats(player_name):
     player_matches = matches[(matches['player1-name'] == player_name) | (matches['player2-name'] == player_name)]
     player_matches['ELO'] = player_matches.loc[player_matches['player1-name'] == player_name]['player1_ELO']
     player_matches['ELO'][player_matches['player2-name'] == player_name] = player_matches.loc[player_matches['player2-name'] == player_name]['player2_ELO']
-    player_matches = player_matches[['match-updated-at', 'name', 'winner','loser', 'winner_elo_in', 'loser_elo', 'ELO']]
+    player_matches = player_matches[['match-completed-at', 'name', 'winner','loser', 'winner_elo_in', 'loser_elo', 'ELO']]
     player_matches.columns=['Date', 'Tournament', 'Winner', 'Loser', 'Winner ELO', 'Loser ELO', 'Player ELO']
     player = dict(players[players["player_name"] == player_name].iloc[0])
 

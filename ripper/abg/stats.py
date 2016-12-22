@@ -10,16 +10,16 @@ from abg.elo import ELO
 l = logging.getLogger("abg")
 
 def read_match_csv(file_handle):
-    return pd.read_csv(file_handle, parse_dates=["match-updated-at", "created-at", "completed-at", "match-updated-at", "created-at"], dtype={"match-scores-csv": str})
+    return pd.read_csv(file_handle, parse_dates=["match-completed-at", "created-at", "completed-at", "match-completed-at", "created-at"], dtype={"match-scores-csv": str})
 
 def clean_matches(abg):
-    abg = abg[["name", "match-id", "match-scores-csv", "completed-at", "match-updated-at", "created-at", "player1-name", "player2-name"]]
+    abg = abg[["name", "match-id", "match-scores-csv", "completed-at", "match-completed-at", "created-at", "player1-name", "player2-name"]]
     abg.set_index("match-id", inplace=True)
 
-    abg["match-updated-at"].fillna(abg["completed-at"],inplace=True)
-    abg["match-updated-at"].fillna(abg["created-at"],inplace=True)
+    abg["match-completed-at"].fillna(abg["completed-at"],inplace=True)
+    abg["match-completed-at"].fillna(abg["created-at"],inplace=True)
 
-    abg.sort_values("match-updated-at", inplace=True)
+    abg.sort_values("match-completed-at", inplace=True)
     del abg["created-at"]
 
     f = abg["match-scores-csv"].apply(lambda x: pd.Series(str(x).split("-")))
@@ -182,8 +182,8 @@ class ABG_Stats:
         player1_new_elo = float(player1["ELO"]) + player1_change
         player2_new_elo = float(player2["ELO"]) + player2_change
 
-        self.change_player_elo(player1["name"], player1_new_elo, length, row["match-updated-at"])
-        self.change_player_elo(player2["name"], player2_new_elo, length, row["match-updated-at"])
+        self.change_player_elo(player1["name"], player1_new_elo, length, row["match-completed-at"])
+        self.change_player_elo(player2["name"], player2_new_elo, length, row["match-completed-at"])
 
         l.debug("Recorded match between {} and {} changed ELOs by {} and {}".format(
         player1["name"], player2["name"], float(player1_change), float(player2_change)))
@@ -200,7 +200,7 @@ class ABG_Stats:
         self.matches["loser_elo_in"] = 0
         self.matches["loser_elo"] = 0
         self.matches["loser_elo_change"] = 0
-    
+
         self.matches["winner"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1-name"]
         self.matches["winner_elo"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1_ELO"]
         self.matches["winner_elo_change"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1_ELO_change"]
@@ -220,11 +220,11 @@ class ABG_Stats:
         self.matches["winner_elo_in"] = self.matches["winner_elo"] - self.matches["winner_elo_change"]
         self.matches["loser_elo_in"] = self.matches["loser_elo"] - self.matches["loser_elo_change"]
 
-# abg = pd.read_csv('data/abg.csv', parse_dates=["match-updated-at", "created-at", "completed-at", "match-updated-at", "created-at"], dtype={"match-scores-csv": str, "predict-the-losers-bracket": str, "start-at": str,"match-underway-at": str })
+# abg = pd.read_csv('data/abg.csv', parse_dates=["match-completed-at", "created-at", "completed-at", "match-completed-at", "created-at"], dtype={"match-scores-csv": str, "predict-the-losers-bracket": str, "start-at": str,"match-underway-at": str })
 # abg = clean_matches(abg)
 # # Finds the "type" or group of tournament
 # abg = set_tournament_types(abg)
-# abg = abg.loc[abg["match-updated-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
+# abg = abg.loc[abg["match-completed-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
 # players_df = build_players(abg)
 # #players2_df = players1_df.copy()
 # abg1 = ABGStats(abg.copy(), players_df.copy())

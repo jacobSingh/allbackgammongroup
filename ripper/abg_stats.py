@@ -78,7 +78,7 @@ def main(argv):
 
     # Start date to align with Travis.... Should probably fix this in a param
     # @TODO: Param this.
-    abg = abg.loc[abg["match-updated-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
+    abg = abg.loc[abg["match-completed-at"] > datetime.datetime(2014, 10, 29).strftime("%Y-%m-%d")]
     if (players_file and os.path.exists(players_file)):
         players_df = pd.read_csv(players_file)
     else:
