@@ -25,8 +25,9 @@ def main(argv):
         output_file = None
         username = None
         api_key = None
-        created_after_date = None
+        ter_date = None
         start_from_date = None
+        created_after_date = None
 
         inifile = "./abg.ini"
         for opt, arg in opts:
@@ -68,11 +69,11 @@ def main(argv):
 
     if (api_key is None):
         print(
-            "Set the CHALLONGE_API_KEY environment variable (export CHALLONGE_API_KEY=xyz)")
+            "Send the api key")
         sys.exit()
 
     if (username is None):
-        print("Set the CHALLONGE_USERNAME environment variable (export CHALLONGE_USERNAME=me@example.com)")
+        print("add the username")
         sys.exit()
 
     # Tell pychallonge about your [CHALLONGE! API
@@ -109,6 +110,18 @@ def main(argv):
 
             #@TODO: Should I put this async and stream output?
             #@TODO: Yes, but it will require some refactoring which is a PITA
+
+        import pandas as pd
+        # async def fuck(df):
+        #     aa = await abg.account.tournaments.show(2924915, include_matches="1")
+        #     abg.tournaments = [aa]
+        #
+        # loop.run_until_complete(fuck(abg))
+        # loop.run_until_complete(abg.flatten(writer))
+        #
+        # exit()
+
+        #params.update(created_after="2016-01-28", created_before="2016-10-02")
         loop.run_until_complete(abg.get_all_tournaments(**params))
         l.info("Downloaded {} tournaments".format(len(abg.tournaments)))
         # loop.run_until_complete(abg.get_all_participants())

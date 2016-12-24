@@ -7,6 +7,7 @@ import dateutil.parser
 import pytz
 utc=pytz.UTC
 import asyncio
+from time import sleep
 
 l = logging.getLogger('abg')
 l.setLevel("DEBUG")
@@ -38,13 +39,15 @@ class ABG_Challonge:
 
 
     async def flatten(self, writer, **params):
-        rows=[];
         for t in self.tournaments:
             try:
                 l.debug("Geting {}".format(t["id"]))
+
+                sleep(.1)
                 tournament = await self.account.tournaments.show(t["id"], include_matches="1", include_participants="1")
             except RuntimeError:
-                l.error("failed while getting https://api.challonge.com/v1/tournaments/{}.xml".format(t["id"]))
+                l.error("failed while getting https://api.challonge.com/v1/tournaments/{}.xml".format(t["id"]), exc_info=True)
+                continue
             participants = {}
 
             # @NOTE: THis might be a problem if IDs clash... unlikely
@@ -52,11 +55,18 @@ class ABG_Challonge:
                 player = { k: player[k] for k in ["id", "name", "group-player-ids"] }
                 # tournament["participants"] = { k: tournament[your_key] for k in ["id", "name", "matches", "participants"] }
                 if tournament["group-stages-enabled"] == True:
-                    group_player_id_map = player["group-player-ids"][0]
-                    participants[group_player_id_map] = player
+                    if len(player["group-player-ids"]) > 0:
+                        try:
+                            group_player_id_map = player["group-player-ids"][0]
+                            participants[group_player_id_map] = player
+                        except:
+                            print(group_player_id_map)
+                            pp(player)
+
                 participants[player["id"]] = player
 
             for match in tournament["matches"]:
+
                 if (match["state"] != "complete"):
                     continue
                 if "start_from_date" in params and params["start_from_date"] is not None:
@@ -73,8 +83,6 @@ class ABG_Challonge:
                 # Process the DQ in stats
                 # @TODO: Support other attachments
                 if (("attachment-count" in match) and (match["attachment-count"] not in [None,0])):
-                    print(match["attachment-count"])
-
                     attachments = await self.account.attachments.index(tournament["id"], match["id"])
                     for a in attachments:
                         if (await self.check_for_dq(a) != False):
@@ -103,8 +111,6 @@ class ABG_Challonge:
                     row={key: value for key, value in row.items()
                                                                 if key not in exclude_fields}
                 writer.addRow(row)
-
-        return rows
 
     async def check_for_dq(self, attachment):
         if ("description" in attachment and attachment["description"] != None and ("ABGDQ" in attachment["description"])):
