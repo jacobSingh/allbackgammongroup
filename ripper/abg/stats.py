@@ -13,7 +13,7 @@ def read_match_csv(file_handle):
     return pd.read_csv(file_handle, parse_dates=["match-completed-at", "created-at", "completed-at", "match-completed-at", "created-at"], dtype={"match-scores-csv": str})
 
 def clean_matches(abg):
-    abg = abg[["name", "match-id", "match-scores-csv", "completed-at", "match-completed-at", "created-at", "player1-name", "player2-name"]]
+    abg = abg[["name", "match-id", "match-scores-csv", "completed-at", "match-completed-at", "created-at", "player1-name", "player2-name", "DQ", "DQ_text"]]
     abg.set_index("match-id", inplace=True)
 
     abg["match-completed-at"].fillna(abg["completed-at"],inplace=True)

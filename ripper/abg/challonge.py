@@ -64,17 +64,22 @@ class ABG_Challonge:
                         self.counts["matches_not_added"] += 1
                         continue
                 self.counts["matches_added"] += 1
-                row={}
+                row = {"DQ":False, "DQ_text": ""}
+
                 tournament_fields = { k: tournament[k] for k in ["id", "name", "group-stages-enabled", "created-at", "completed-at", "state"] }
                 row.update(tournament_fields)
 
                 # @TODO: DL the attachment and store it (probably when we switch to SQL)
                 # Process the DQ in stats
-                if ("attachment-count" in match and match["attachment-count"] != 0):
-                    attachments = await self.account.get_attachments(tournament["id"], match["id"])
+                # @TODO: Support other attachments
+                if (("attachment-count" in match) and (match["attachment-count"] not in [None,0])):
+                    print(match["attachment-count"])
+
+                    attachments = await self.account.attachments.index(tournament["id"], match["id"])
                     for a in attachments:
                         if (await self.check_for_dq(a) != False):
-                            row["DQ"] = a["description"]
+                            row["DQ"] = True
+                            row["DQ_text"] = a["description"]
 
                 match_fields = { k: match[k] for k in ["id", "state", "completed-at", "scores-csv"] }
                 row.update(self.add_prefix_to_dictionary(match_fields, "match-"))
@@ -102,7 +107,7 @@ class ABG_Challonge:
         return rows
 
     async def check_for_dq(self, attachment):
-        if ("ABGDQ" in attachment["description"]):
+        if ("description" in attachment and attachment["description"] != None and ("ABGDQ" in attachment["description"])):
             return True
         return False
 

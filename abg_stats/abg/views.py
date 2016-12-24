@@ -93,25 +93,16 @@ def home():
 def dqs():
     """DQ page"""
     app = flask.current_app
-    players = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/players_elo.csv'))
-    experienced_players = players.loc[players['xp'] >= app.config['XP_THRESHOLD']]
-    elo_table = get_main_elo_table_html(experienced_players)
+    matches = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/match_log.csv'))
+    dqs = matches[matches["DQ"] == True]
 
-    funnynames = ['statocopia', 'lies and damn lies', 'nerdotica!', 'useless facts and figures']
+    pd.set_option('display.max_colwidth', 100)
 
-    img = BytesIO()
-    chart = sns.lmplot('ELO', 'xp', data=experienced_players, fit_reg=False)
-    chart.savefig(img, format='png')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue())
-
-    abg_vars = {
-        'sillyname': random.choice(funnynames),
-        'table': Markup(elo_table),
-        'scatter': Markup('<img src="data:image/png;base64,{}" />'.format(plot_url.decode('utf-8')))
+    dq_vars = {
+        "table": Markup(dqs.to_html())
     }
 
-    return render_template('abg.html', **abg_vars)
+    return render_template('abg.html', **dq_vars)
 
 
 
