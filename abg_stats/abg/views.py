@@ -95,6 +95,8 @@ def dqs():
     app = flask.current_app
     matches = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/match_log.csv'))
     dqs = matches[matches["DQ"] == True]
+    dqs = dqs[['match-completed-at', 'name', 'winner','loser', 'DQ_text']]
+    dqs.columns=['Data', 'Tournament', 'Winner', 'Loser', 'Description']
 
     pd.set_option('display.max_colwidth', 100)
 

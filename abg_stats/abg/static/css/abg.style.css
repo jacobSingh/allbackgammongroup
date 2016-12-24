@@ -5,6 +5,7 @@
     background: #fff;
     text-align: right;
     min-width:5em;
+    padding: .5em 1em .5em 1em;
 }
 
 /* Format summary rows */
