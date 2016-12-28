@@ -30,7 +30,6 @@ def clean_matches(abg):
     abg.loc[:,("player2-score")] = pd.to_numeric(abg["player2-score"], errors='coerce')
 
     abg.loc[:,("match-length")] = abg[["player1-score", "player2-score"]].apply(max, axis=1)
-
     # @Todo: gives a simple histogram of sorts.
     #abg["match-length"].count_values()
     abg['match-length'].fillna(0,inplace=True)
@@ -55,6 +54,8 @@ def clean_matches(abg):
     # abg['winchance'] = .5
     abg["player1_ELO_change"] = 0
     abg["player2_ELO_change"] = 0
+
+    abg["score_diff"] = abg["player1-score"] - abg["player2-score"]
 
     return abg
 
@@ -168,8 +169,8 @@ class ABG_Stats:
         player1.update(self.find_by_name(player1["name"]))
         player2.update(self.find_by_name(player2["name"]))
 
-        l.debug("Recording match between {} and {} with ELOs {} and {}".format(
-        player1["name"], player2["name"], float(player1["ELO"]), float(player2["ELO"])))
+        # l.debug("Recording match between {} and {} with ELOs {} and {}".format(
+        # player1["name"], player2["name"], float(player1["ELO"]), float(player2["ELO"])))
 
         #figure out who is the winner
         if player1["score"] > player2["score"]:
@@ -182,13 +183,17 @@ class ABG_Stats:
         player1_new_elo = float(player1["ELO"]) + player1_change
         player2_new_elo = float(player2["ELO"]) + player2_change
 
-        self.change_player_elo(player1["name"], player1_new_elo, length, row["match-completed-at"])
-        self.change_player_elo(player2["name"], player2_new_elo, length, row["match-completed-at"])
+        if (row["DQ"] == True):
+            l.debug("Recorded DQ between {} and {}".format(player1["name"], player2["name"]))
+            return pd.Series([0, 0, float(player1["ELO"]), float(player2["ELO"])])
+        else:
+            self.change_player_elo(player1["name"], player1_new_elo, length, row["match-completed-at"])
+            self.change_player_elo(player2["name"], player2_new_elo, length, row["match-completed-at"])
 
-        l.debug("Recorded match between {} and {} changed ELOs by {} and {}".format(
-        player1["name"], player2["name"], float(player1_change), float(player2_change)))
+            #l.debug("Recorded match between {} and {} changed ELOs by {} and {}".format(
+            #player1["name"], player2["name"], float(player1_change), float(player2_change)))
 
-        return pd.Series([player1_change, player2_change, player1_new_elo, player2_new_elo])
+            return pd.Series([player1_change, player2_change, player1_new_elo, player2_new_elo])
 
     def add_running_win_loss_columns(self):
         self.matches["winner"] = ""
@@ -201,21 +206,21 @@ class ABG_Stats:
         self.matches["loser_elo"] = 0
         self.matches["loser_elo_change"] = 0
 
-        self.matches["winner"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1-name"]
-        self.matches["winner_elo"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1_ELO"]
-        self.matches["winner_elo_change"] = self.matches.loc[self.matches["player1_ELO_change"] > 0]["player1_ELO_change"]
+        self.matches["winner"] = self.matches.loc[self.matches["score_diff"] > 0]["player1-name"]
+        self.matches["winner_elo"] = self.matches.loc[self.matches["score_diff"] > 0]["player1_ELO"]
+        self.matches["winner_elo_change"] = self.matches.loc[self.matches["score_diff"] > 0]["player1_ELO_change"]
 
-        self.matches["winner"][self.matches["player2_ELO_change"] > 0] = self.matches.loc[self.matches["player2_ELO_change"] > 0]["player2-name"]
-        self.matches["winner_elo"][self.matches["player2_ELO_change"] > 0] = self.matches.loc[self.matches["player2_ELO_change"] > 0]["player2_ELO"]
-        self.matches["winner_elo_change"][self.matches["player2_ELO_change"] > 0] = self.matches.loc[self.matches["player2_ELO_change"] > 0]["player2_ELO_change"]
+        self.matches["winner"][self.matches["score_diff"] < 0] = self.matches.loc[self.matches["score_diff"] < 0]["player2-name"]
+        self.matches["winner_elo"][self.matches["score_diff"] < 0] = self.matches.loc[self.matches["score_diff"] < 0]["player2_ELO"]
+        self.matches["winner_elo_change"][self.matches["score_diff"] < 0] = self.matches.loc[self.matches["score_diff"] < 0]["player2_ELO_change"]
 
-        self.matches["loser"] = self.matches.loc[self.matches["player1_ELO_change"] < 0]["player1-name"]
-        self.matches["loser_elo"] = self.matches.loc[self.matches["player1_ELO_change"] < 0]["player1_ELO"]
-        self.matches["loser_elo_change"] = self.matches.loc[self.matches["player1_ELO_change"] < 0]["player1_ELO_change"]
+        self.matches["loser"] = self.matches.loc[self.matches["score_diff"] < 0]["player1-name"]
+        self.matches["loser_elo"] = self.matches.loc[self.matches["score_diff"] < 0]["player1_ELO"]
+        self.matches["loser_elo_change"] = self.matches.loc[self.matches["score_diff"] < 0]["player1_ELO_change"]
 
-        self.matches["loser"][self.matches["player2_ELO_change"] < 0] = self.matches.loc[self.matches["player2_ELO_change"] < 0]["player2-name"]
-        self.matches["loser_elo"][self.matches["player2_ELO_change"] < 0] = self.matches.loc[self.matches["player2_ELO_change"] < 0]["player2_ELO"]
-        self.matches["loser_elo_change"][self.matches["player2_ELO_change"] < 0] = self.matches.loc[self.matches["player2_ELO_change"] < 0]["player2_ELO_change"]
+        self.matches["loser"][self.matches["score_diff"] > 0] = self.matches.loc[self.matches["score_diff"] > 0]["player2-name"]
+        self.matches["loser_elo"][self.matches["score_diff"] > 0] = self.matches.loc[self.matches["score_diff"] > 0]["player2_ELO"]
+        self.matches["loser_elo_change"][self.matches["score_diff"] > 0] = self.matches.loc[self.matches["score_diff"] > 0]["player2_ELO_change"]
 
         self.matches["winner_elo_in"] = self.matches["winner_elo"] - self.matches["winner_elo_change"]
         self.matches["loser_elo_in"] = self.matches["loser_elo"] - self.matches["loser_elo_change"]
