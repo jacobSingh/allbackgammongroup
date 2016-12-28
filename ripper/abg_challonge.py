@@ -126,7 +126,7 @@ def main(argv):
         #
         # exit()
 
-        params.update(created_after="2016-10-01", created_before="2016-10-15")
+        #params.update(created_after="2016-10-01", created_before="2016-10-15")
         #start_from_date = dateutil.parser.parse("2016-01-26 23:13:13+02:00")
 
         loop.run_until_complete(abg.get_all_tournaments(**params))
