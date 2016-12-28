@@ -43,7 +43,6 @@ class ABG_Challonge:
         for t in self.tournaments:
             try:
                 l.debug("Geting {}".format(t["id"]))
-
                 sleep(.1)
                 tournament = await self.account.tournaments.show(t["id"], include_matches="1", include_participants="1")
             except RuntimeError:
@@ -116,7 +115,7 @@ class ABG_Challonge:
                     if type(v) is datetime.datetime:
                         row[k] = v.astimezone(utc)
                 rows.append(row)
-            return rows
+        return rows
 
     async def check_for_dq(self, attachment):
         if ("description" in attachment and attachment["description"] != None and ("ABGDQ" in attachment["description"])):

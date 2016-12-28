@@ -126,6 +126,7 @@ def main(argv):
         #
         # exit()
 
+        params.update(created_after="2016-10-01", created_before="2016-10-15")
         #start_from_date = dateutil.parser.parse("2016-01-26 23:13:13+02:00")
 
         loop.run_until_complete(abg.get_all_tournaments(**params))
@@ -135,6 +136,9 @@ def main(argv):
         rows = loop.run_until_complete(abg.flatten(exclude_fields=[
                                 'description', 'description-source'], start_from_date=start_from_date))
         if (len(rows) > 0):
+            #@ TODO: Support matches updated post tournment closing
+            #if (new_file == False):
+                #df = pd.read_from_csv()
             df = pd.DataFrame(rows)
             df.sort_values("match-updated-at")
             df = df[["match-id","id","name","player2-name","group-stages-enabled","player1-name","match-completed-at","state","match-state","completed-at","match-scores-csv","created-at", "DQ", "DQ_text"]]
