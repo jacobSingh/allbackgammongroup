@@ -4,6 +4,7 @@ from challonge import Account
 from pprint import pprint as pp
 import logging
 import dateutil.parser
+import datetime
 import pytz
 utc=pytz.UTC
 import asyncio
@@ -37,8 +38,8 @@ class ABG_Challonge:
             new_dictionary[prefix + k] = v
         return new_dictionary
 
-
-    async def flatten(self, writer, **params):
+    async def flatten(self, **params):
+        rows = []
         for t in self.tournaments:
             try:
                 l.debug("Geting {}".format(t["id"]))
@@ -70,7 +71,7 @@ class ABG_Challonge:
                 if (match["state"] != "complete"):
                     continue
                 if "start_from_date" in params and params["start_from_date"] is not None:
-                    if (match["completed-at"] < params["start_from_date"]):
+                    if (match["updated-at"].astimezone(utc) <= params["start_from_date"]):
                         self.counts["matches_not_added"] += 1
                         continue
                 self.counts["matches_added"] += 1
@@ -89,7 +90,7 @@ class ABG_Challonge:
                             row["DQ"] = True
                             row["DQ_text"] = a["description"]
 
-                match_fields = { k: match[k] for k in ["id", "state", "completed-at", "scores-csv"] }
+                match_fields = { k: match[k] for k in ["id", "state", "completed-at", "updated-at", "scores-csv"] }
                 row.update(self.add_prefix_to_dictionary(match_fields, "match-"))
                 try:
                     row["player1-name"] = participants[match['player1-id']]["name"]
@@ -108,9 +109,14 @@ class ABG_Challonge:
                     continue
                 if ("exclude_fields" in params):
                     exclude_fields=params['exclude_fields']
-                    row={key: value for key, value in row.items()
-                                                                if key not in exclude_fields}
-                writer.addRow(row)
+                    row={key: value for key, value in row.items() if key not in exclude_fields}
+
+                # Convert all dates to UTC
+                for k,v in row.items():
+                    if type(v) is datetime.datetime:
+                        row[k] = v.astimezone(utc)
+                rows.append(row)
+            return rows
 
     async def check_for_dq(self, attachment):
         if ("description" in attachment and attachment["description"] != None and ("ABGDQ" in attachment["description"])):

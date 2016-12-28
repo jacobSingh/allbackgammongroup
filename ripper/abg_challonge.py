@@ -13,13 +13,14 @@ from abg.writers import CSV_Writer
 from abg.challonge import ABG_Challonge
 from pprint import pprint as pp
 
+
 l = logging.getLogger('abg')
 l.debug('Starting ABG Challonge')
 
 
 def main(argv):
     try:
-
+        from pytz import utc
         opts, args = getopt.getopt(argv, "c:k:u:o:d:", ["username=", "key="])
 
         output_file = None
@@ -28,6 +29,7 @@ def main(argv):
         ter_date = None
         start_from_date = None
         created_after_date = None
+        new_file = False
 
         inifile = "./abg.ini"
         for opt, arg in opts:
@@ -55,8 +57,11 @@ def main(argv):
             output_file = arg
             if (os.path.exists(output_file)):
                 l.warn("Output file {} exists, appending to it.".format(output_file))
+                new_file = False
         elif opt in ('-d'):
             start_from_date = dateutil.parser.parse(arg)
+            if (start_from_date.tzinfo):
+                start_from_date = start_from_date.astimezone(utc)
             created_after_date = (start_from_date - datetime.timedelta(days=60)).strftime("%Y-%m-%d")
             l.info("Taking tournaments created less after {} and recording matches since {}".format(created_after_date, start_from_date))
 
@@ -92,7 +97,7 @@ def main(argv):
         loop.run_until_complete(abg.move_tournaments("allbackgammon"))
     elif(args[0] == "rip"):
         abg = ABG_Challonge(username, api_key)
-        writer = CSV_Writer(output_csv)
+        #writer = CSV_Writer(output_csv)
 
         # For testing DQs
         # async def seta(df):
@@ -121,13 +126,19 @@ def main(argv):
         #
         # exit()
 
-        #params.update(created_after="2016-01-28", created_before="2016-10-02")
+        #start_from_date = dateutil.parser.parse("2016-01-26 23:13:13+02:00")
+
         loop.run_until_complete(abg.get_all_tournaments(**params))
         l.info("Downloaded {} tournaments".format(len(abg.tournaments)))
         # loop.run_until_complete(abg.get_all_participants())
         # l.info("Found {} players".format(len(abg.participants)))
-        loop.run_until_complete(abg.flatten(writer, exclude_fields=[
+        rows = loop.run_until_complete(abg.flatten(exclude_fields=[
                                 'description', 'description-source'], start_from_date=start_from_date))
+        if (len(rows) > 0):
+            df = pd.DataFrame(rows)
+            df.sort_values("match-updated-at")
+            df = df[["match-id","id","name","player2-name","group-stages-enabled","player1-name","match-completed-at","state","match-state","completed-at","match-scores-csv","created-at", "DQ", "DQ_text"]]
+            df.to_csv(output_csv, header=new_file)
 
         l.info("Added {} matches".format(abg.counts["matches_added"]))
         l.info("Skipped {} matches already in the DB".format(abg.counts["matches_not_added"]))
