@@ -10,7 +10,5 @@
     "commit": "b8717b4ee128b36fd23df0492955884a61e27cf8"
   },
   "_source": "https://github.com/highcharts/highcharts-dist.git",
-  "_target": "^5.0.6",
-  "_originalSource": "highcharts",
-  "_direct": true
+  "_target": "*"
 }

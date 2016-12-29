@@ -5,8 +5,14 @@
 <div class="body-content">
     <div class="row">
       <h1>Stats for {{player.name}}</h1>
-      
-      {{elo_chart}}
+
+      <div id="elo_chart"></div>
+      <div id="elo_stddev_chart"></div>
+      <script type="text/javascript">
+          elo_chart_vars = {{elo_chart|safe}}
+          
+
+      </script>
       {{match_table}}
     </div>
 </div>

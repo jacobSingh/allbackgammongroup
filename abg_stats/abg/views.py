@@ -24,7 +24,9 @@ from pprint import pprint as pp
 from io import BytesIO
 import base64
 import random
-from nvd3 import lineChart
+import scipy.stats as stats
+
+from pandas_highcharts.core import serialize
 
 from flask_assets import Bundle, Environment
 
@@ -57,13 +59,34 @@ def show_player_stats(player_name):
     match_table = Markup(player_matches.to_html(index=False, float_format='%.0f'))
 
     date_series = (pd.DatetimeIndex(player_matches['Date']).astype(int) / 1000 / 1000).tolist()
+    #chartdf = [date_series,player_matches["Player ELO"]]
 
-    chart = lineChart(name='ELO over time', x_is_date=True, width='1000', interpolate="basic")
-    extra_serie = {'tooltip': {'y_start': 'START ', 'y_end': ' DONE'}}
-    chart.add_serie(y=player_matches['Player ELO'].tolist(), x=date_series, name='ELO', extra=extra_serie)
-    chart.buildhtml()
+    chartdf = player_matches[["Date", "Player ELO"]]
+    chartdf["Date"] = pd.DatetimeIndex(chartdf["Date"]).astype(int) / 1000 / 1000
+    chartdf.set_index("Date", inplace=True)
+    #chartdf["Date"]
 
-    return render_template('player.html', player=player, match_table=match_table, elo_chart=Markup(chart.htmlcontent))
+    chart = serialize(chartdf, render_to='elo_chart', output_type='json', title="ELO history")
+
+    #
+    #
+    # #players = pd.read_csv(os.path.join('../data/', 'all_but_champ/players_elo.csv'))
+    # playersdf = players[["player_name","ELO"]]
+    # h = playersdf["ELO"].tolist()
+    # playersdf["fd"] = stats.norm.pdf(h, np.mean(h), np.std(h))
+    # playersdf = playersdf[["fd", "player_name"]]
+    #
+    # elo_stddev_chart = serialize(playersdf, render_to="elo_stddev_chart", output_type="json", title="ELO percentages")
+    # #f = display_charts(player_matches, kind="bar", title="Whatever")
+    # #chart += f
+
+
+    # chart = lineChart(name='ELO over time', x_is_date=True, width='1000', interpolate="basic")
+    # extra_serie = {'tooltip': {'y_start': 'START ', 'y_end': ' DONE'}}
+    # chart.add_serie(y=player_matches['Player ELO'].tolist(), x=date_series, name='ELO', extra=extra_serie)
+    # chart.buildhtml()
+
+    return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=None)
 
 @blueprint.route('/', methods=['GET', 'POST'])
 def home():

@@ -15,7 +15,9 @@ js = Bundle(
     'libs/jQuery/dist/jquery.js',
     'libs/bootstrap/dist/js/bootstrap.js',
     'js/plugins.js',
-    filters='jsmin',
+    'libs/highcharts/highcharts.js',
+    'abg/js/charts.js',
+    #filters='jsmin',
     output='public/js/common.js'
 )
 
