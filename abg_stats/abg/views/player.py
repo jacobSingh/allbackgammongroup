@@ -107,6 +107,7 @@ def show_player_stats(player_name):
         #"Win percentage": lambda x: "{}%".format(x)
     }
 
+    pd.set_option('display.max_colwidth', 100)
     top_opponents = Markup(df.head(20).to_html(escape=False,formatters = formatters))
 
     return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=elo_stddev_chart, top_opponents=top_opponents)
