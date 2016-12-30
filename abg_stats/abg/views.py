@@ -25,6 +25,7 @@ from io import BytesIO
 import base64
 import random
 import scipy.stats as stats
+import scipy
 
 from pandas_highcharts.core import serialize
 
@@ -68,25 +69,21 @@ def show_player_stats(player_name):
 
     chart = serialize(chartdf, render_to='elo_chart', output_type='json', title="ELO history")
 
-    #
-    #
-    # #players = pd.read_csv(os.path.join('../data/', 'all_but_champ/players_elo.csv'))
-    # playersdf = players[["player_name","ELO"]]
-    # h = playersdf["ELO"].tolist()
-    # playersdf["fd"] = stats.norm.pdf(h, np.mean(h), np.std(h))
-    # playersdf = playersdf[["fd", "player_name"]]
-    #
-    # elo_stddev_chart = serialize(playersdf, render_to="elo_stddev_chart", output_type="json", title="ELO percentages")
+    # Players stddist
+    experienced_players = players.loc[players['xp'] >= app.config['XP_THRESHOLD']]
+    h = sorted(experienced_players["ELO"].tolist())
+    dist = stats.norm.pdf(h, 1500, np.std(h))
+    df = pd.DataFrame({"ELO": h, "dist": dist})
+    df = df.set_index("ELO")
+
+    elo_stddev_chart = serialize(df, render_to="elo_stddev_chart", output_type="json", title="Compared to all players having experience over {}".format(app.config['XP_THRESHOLD']))
     # #f = display_charts(player_matches, kind="bar", title="Whatever")
     # #chart += f
 
+    z_score = (player["ELO"] - np.mean(h)) / np.std(h)
+    player["percentile"] = round(1 - scipy.stats.norm.sf(z_score) * 100)
 
-    # chart = lineChart(name='ELO over time', x_is_date=True, width='1000', interpolate="basic")
-    # extra_serie = {'tooltip': {'y_start': 'START ', 'y_end': ' DONE'}}
-    # chart.add_serie(y=player_matches['Player ELO'].tolist(), x=date_series, name='ELO', extra=extra_serie)
-    # chart.buildhtml()
-
-    return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=None)
+    return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=elo_stddev_chart)
 
 @blueprint.route('/', methods=['GET', 'POST'])
 def home():

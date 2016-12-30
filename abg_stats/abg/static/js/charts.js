@@ -1,6 +1,28 @@
 $(function () {
   $(document).ready(function() {
     if (typeof elo_stddev_chart_vars != 'undefined' && elo_stddev_chart_vars != {}) {
+
+        $.extend(true, elo_stddev_chart_vars, {
+          chart: {
+            type: "areaspline",
+            zoomType: "x"
+          },
+          xAxis: {
+              plotLines: [{
+              color: 'red', // Color value
+              dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+              value: player["ELO"], // Value of where the line will appear
+              width: 2, // Width of the line
+              label: {
+                text: player["player_name"] + " " + Math.round(player["ELO"]) + "  (" + player["percentile"] + " percentile)"
+              }
+            }]
+          }
+        });
+
+
+
+
         new Highcharts.Chart(elo_stddev_chart_vars)
       }
       if (elo_chart_vars) {
