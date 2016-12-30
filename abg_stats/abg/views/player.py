@@ -63,7 +63,7 @@ def get_top_opponents(player_matches, player_name):
             output[i["Winner"]]["losses"] += 1
     return output
 
-@blueprint.route('/player/<player_name>')
+@blueprint.route('/<player_name>')
 def show_player_stats(player_name):
 
     player = {}
@@ -101,6 +101,12 @@ def show_player_stats(player_name):
     df["total"] = df["wins"] + df["losses"]
     df.sort_values("total", inplace=True, ascending=False)
 
-    top_opponents = Markup(df.head(20).to_html())
+    # @TODO: Centralize this.
+    formatters = {
+        'Name': lambda x: '<a href="{}">{}</a>'.format(url_for('player.show_player_stats', player_name=x), x),
+        #"Win percentage": lambda x: "{}%".format(x)
+    }
+
+    top_opponents = Markup(df.head(20).to_html(formatters = formatters))
 
     return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=elo_stddev_chart, top_opponents=top_opponents)
