@@ -4,6 +4,7 @@ import flask
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required, login_user, logout_user
 from flask import Markup
+from flask import send_file
 
 from abg_stats.extensions import login_manager
 from abg_stats.public.forms import LoginForm
@@ -26,10 +27,10 @@ import base64
 import random
 import scipy.stats as stats
 import scipy
-
 from pandas_highcharts.core import serialize
-
 from flask_assets import Bundle, Environment
+
+import math
 
 blueprint = Blueprint('abg', __name__, static_folder='static', template_folder='templates')
 
@@ -81,7 +82,7 @@ def show_player_stats(player_name):
     # #chart += f
 
     z_score = (player["ELO"] - np.mean(h)) / np.std(h)
-    player["percentile"] = round(1 - scipy.stats.norm.sf(z_score) * 100)
+    player["percentile"] = round((1 - scipy.stats.norm.sf(z_score)) * 100)
 
     return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=elo_stddev_chart)
 
@@ -126,7 +127,12 @@ def dqs():
 
     return render_template('abg.html', **dq_vars)
 
-
+@blueprint.route('/download_log', methods=['GET'])
+def dl_match_log():
+    return send_file(os.path.join(app.config['DATA_DIR'], 'all_but_champ/match_log.csv'),
+                     mimetype='text/csv',
+                     attachment_filename='match_log.csv',
+                     as_attachment=True)
 
 def get_main_elo_table_html(df):
     df = df[['player_name', 'ELO', 'xp']]
