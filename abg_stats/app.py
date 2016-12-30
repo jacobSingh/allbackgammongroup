@@ -40,7 +40,8 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
-    app.register_blueprint(abg.views.blueprint, url_prefix="/abg")
+    app.register_blueprint(abg.views.other.blueprint, url_prefix="/abg")
+    app.register_blueprint(abg.views.player.blueprint, url_prefix="/abg/player")
     return None
 
 
