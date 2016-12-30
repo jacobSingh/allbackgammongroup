@@ -102,10 +102,11 @@ def dl_match_log():
 
 def get_main_elo_table_html(df):
     df = df[['player_name', 'ELO', 'xp', "Wins", "Losses"]]
-    df["Win percentage"] = df["Wins"] / df["Losses"]
+    df["Win percentage"] = df["Wins"] / (df["Wins"] + df["Losses"]) * 100
     df.columns = ['Player', 'ELO', 'Experience',"Wins", "Losses","Win percentage"]
     formatters = {
-        'Player': lambda x: '<a href="{}">{}</a>'.format(url_for('player.show_player_stats', player_name=x), x)
+        'Player': lambda x: '<a href="{}">{}</a>'.format(url_for('player.show_player_stats', player_name=x), x),
+        #"Win percentage": lambda x: "{}%".format(x)
     }
     pd.set_option('display.max_colwidth', 100)
-    return df.to_html(formatters=formatters, escape=False, float_format='%.0f')
+    return df.to_html(formatters=formatters, escape=False, float_format='%2.0f')
