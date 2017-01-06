@@ -1,12 +1,19 @@
+import logging
+l = logging.getLogger("abg")
+
+l.error("Before imports in app.py")
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
 from flask import Flask, render_template
-
-from abg_stats import commands, public, user, abg
+l.error("After Flask import")
+from abg_stats import commands, public, user
+l.error("blueprints")
+from abg_stats import abg
+l.error("ABG")
 from abg_stats.assets import assets
 from abg_stats.extensions import bcrypt, cache, csrf_protect, db, debug_toolbar, login_manager, migrate
 from abg_stats.settings import ProdConfig
-
+l.error("After imports in app.py")
 
 def create_app(config_object=ProdConfig):
     """An application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/.
@@ -42,6 +49,7 @@ def register_blueprints(app):
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(abg.views.other.blueprint, url_prefix="/abg")
     app.register_blueprint(abg.views.player.blueprint, url_prefix="/abg/player")
+    app.register_blueprint(abg.views.tournaments.blueprint, url_prefix="/abg/tournaments")
     return None
 
 

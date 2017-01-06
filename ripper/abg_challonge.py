@@ -141,7 +141,7 @@ def main(argv):
                 #df = pd.read_from_csv()
             df = pd.DataFrame(rows)
             df.sort_values("match-updated-at")
-            df = df[["match-id","id","name","player2-name","group-stages-enabled","player1-name","match-completed-at","state","match-state","completed-at","match-scores-csv","created-at", "DQ", "DQ_text"]]
+            df = df[["match-id","id","name","player2-name","group-stages-enabled","player1-name","match-completed-at","state","match-state","completed-at","match-scores-csv","created-at", "match-round", "DQ", "DQ_text"]]
             df.to_csv(output_csv, header=new_file)
 
         l.info("Added {} matches".format(abg.counts["matches_added"]))

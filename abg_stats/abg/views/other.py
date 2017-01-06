@@ -33,13 +33,6 @@ import math
 blueprint = Blueprint('abg', __name__, static_folder='../static', template_folder='../templates')
 
 app = flask.current_app
-assets = Environment(app)
-
-css = Bundle(
-    'css/abg.style.css',
-)
-assets.register('all_css', css)
-
 
 @blueprint.route('/', methods=['GET', 'POST'])
 def home():

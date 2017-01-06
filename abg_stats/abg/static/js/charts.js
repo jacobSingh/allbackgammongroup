@@ -20,9 +20,6 @@ $(function () {
           }
         });
 
-
-
-
         new Highcharts.Chart(elo_stddev_chart_vars)
       }
       if (elo_chart_vars) {

@@ -89,7 +89,7 @@ class ABG_Challonge:
                             row["DQ"] = True
                             row["DQ_text"] = a["description"]
 
-                match_fields = { k: match[k] for k in ["id", "state", "completed-at", "updated-at", "scores-csv"] }
+                match_fields = { k: match[k] for k in ["id", "state", "completed-at", "updated-at", "scores-csv", "round"] }
                 row.update(self.add_prefix_to_dictionary(match_fields, "match-"))
                 try:
                     row["player1-name"] = participants[match['player1-id']]["name"]

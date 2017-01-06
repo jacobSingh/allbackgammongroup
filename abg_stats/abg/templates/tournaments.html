@@ -1,0 +1,14 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="body-content">
+    <div class="row">
+      <h1>Top winners for all tournaments</h1>
+      {% for tournament in tournaments %}
+        <a href="{{ url_for('tournament', tournament_type=tournament.type) }}">{{ tournament.type }}</a>
+      {% endfor %}
+
+    </div>
+</div>
+{% endblock %}
