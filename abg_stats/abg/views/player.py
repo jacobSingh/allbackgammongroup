@@ -75,7 +75,7 @@ def get_player_matches_df(matches, player_name):
     player_loser["opponent"] = player_loser["winner"]
     player_matches = pd.concat([player_winner, player_loser]).sort_values("match-completed-at")
 
-    float_format = lambda x: "{0:.2f}".format(x)
+    float_format = lambda x: "{%.0f}".format(x)
     player_matches["winner_elo_display"] = player_matches["winner_elo_in"].map(float_format) + " (" + player_matches["winner_elo"].map(float_format)  + ")"
     player_matches["loser_elo_display"] = player_matches["loser_elo_in"].map(float_format)  + " (" + player_matches["loser_elo"].map(float_format)  + ")"
     player_matches = player_matches[['match-completed-at', 'name', 'winner', 'loser', 'winner_elo_display', 'loser_elo_display', 'player_elo', "opponent", "W", "L"]]
