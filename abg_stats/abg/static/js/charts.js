@@ -26,13 +26,14 @@ $(function () {
 
         elo_chart_vars['yAxis'][1]["min"] = 0;
         elo_chart_vars['yAxis'][1]["max"] = 100;
-        elo_chart_vars['yAxis'][1]["plotBands"] = [
-          {from: 0, to: 25, "color": '#FFAAAA',},
-          {"from": 25, "to": 50, "color": '#FFDDDD'},
-          {"from": 50, "to": 75, "color": '#DDDDFF'},
-          {"from": 75, "to": 100, "color": '#AAAAFF'},
-        ];
+        // elo_chart_vars['yAxis'][1]["plotBands"] = [
+        //   {from: 0, to: 25, "color": '#FFAAAA',},
+        //   {"from": 25, "to": 50, "color": '#FFDDDD'},
+        //   {"from": 50, "to": 75, "color": '#DDDDFF'},
+        //   {"from": 75, "to": 100, "color": '#AAAAFF'},
+        // ];
 
+      
         elo_chart_vars['yAxis'][1]['labels'] = {
                 formatter: function () {
                     return this.value + '%';
