@@ -66,9 +66,11 @@ def build_elo_history(player_matches):
     chartdf.set_index("Date", inplace=True)
     z = chartdf.resample('m').mean()
     z = z.fillna(method='bfill')
-    
+
     z["Player ELO"] = z["Player ELO"].map(lambda x: round(x))
     z["Win Rate"] = z["Win Rate"].map(lambda x: round(x * 100))
+
+    z.columns = ["ELO", "Win Rate"]
 
     #pp(chartdf.index)
     #grouped = pd.groupby(chartdf,by=[chartdf.index.month,chartdf.index.year])["Player ELO"].mean()

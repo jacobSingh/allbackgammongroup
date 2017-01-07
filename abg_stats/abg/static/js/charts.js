@@ -23,6 +23,24 @@ $(function () {
         new Highcharts.Chart(elo_stddev_chart_vars)
       }
       if (elo_chart_vars) {
+
+        elo_chart_vars['yAxis'][1]["min"] = 0;
+        elo_chart_vars['yAxis'][1]["max"] = 100;
+        elo_chart_vars['yAxis'][1]["plotBands"] = [
+          {from: 0, to: 25, "color": '#FFAAAA',},
+          {"from": 25, "to": 50, "color": '#FFDDDD'},
+          {"from": 50, "to": 75, "color": '#DDDDFF'},
+          {"from": 75, "to": 100, "color": '#AAAAFF'},
+        ];
+
+        elo_chart_vars['yAxis'][1]['labels'] = {
+                formatter: function () {
+                    return this.value + '%';
+                }
+            };
+
+        elo_chart_vars['series'][1]["tooltip"] = {"pointFormat":  '{point.y}%'};
+
         console.log(elo_chart_vars);
         // elo_chart_vars['series'][0]['pointStart'] = Date.UTC(2015, 0, 1),
         // elo_chart_vars['series'][0]['pointIntervalUnit']= 'year';
@@ -42,12 +60,12 @@ $(function () {
         // },
         tooltip: {
             crosshairs: true,
-            shared: true
+            headerFormat: '<b>{series.name}</b><br/>',
         },
         plotOptions: {
             spline: {
                 marker: {
-                    radius: 8,
+                    radius: 4,
                     lineColor: '#666666',
                     lineWidth: 1
                 },
