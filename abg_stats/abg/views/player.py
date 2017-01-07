@@ -64,7 +64,7 @@ def build_elo_history(player_matches):
     chartdf["Date"] = pd.DatetimeIndex(chartdf["Date"])
     chartdf["Win Rate"] = winrate_chart["Win Rate"]
     chartdf.set_index("Date", inplace=True)
-    z = chartdf.resample('m').mean()
+    z = chartdf.resample('w').mean()
     z = z.fillna(method='bfill')
 
     z["Player ELO"] = z["Player ELO"].map(lambda x: round(x))
