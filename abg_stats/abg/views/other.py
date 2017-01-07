@@ -102,4 +102,4 @@ def get_main_elo_table_html(df):
         #"Win percentage": lambda x: "{}%".format(x)
     }
     pd.set_option('display.max_colwidth', 100)
-    return df.to_html(formatters=formatters, escape=False, float_format='%2.0f')
+    return df.to_html(classes=["table-striped", "table"], formatters=formatters, escape=False, float_format='%2.0f')

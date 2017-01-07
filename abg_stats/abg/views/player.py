@@ -66,31 +66,22 @@ def get_player_matches_df(matches, player_name):
     player_loser["player_elo_change"] = matches["loser_elo_change"]
     player_winner["player_elo"] = matches["winner_elo"]
     player_loser["player_elo"] = matches["loser_elo"]
+    player_winner["W"] = 1
+    player_winner["L"] = 0
+    player_loser["W"] = 0
+    player_loser["L"] = 1
 
+    player_winner["opponent"] = player_winner["loser"]
+    player_loser["opponent"] = player_loser["winner"]
     player_matches = pd.concat([player_winner, player_loser]).sort_values("match-completed-at")
 
     float_format = lambda x: "{0:.2f}".format(x)
     player_matches["winner_elo_display"] = player_matches["winner_elo_in"].map(float_format) + " (" + player_matches["winner_elo"].map(float_format)  + ")"
     player_matches["loser_elo_display"] = player_matches["loser_elo_in"].map(float_format)  + " (" + player_matches["loser_elo"].map(float_format)  + ")"
-    player_matches = player_matches[['match-completed-at', 'name', 'winner', 'loser', 'winner_elo_display', 'loser_elo_display', 'player_elo']]
-    player_matches.columns = ['Date', 'Tournament', 'Winner', 'Loser', 'Winner ELO (result)', 'Loser ELO (result)', 'Player ELO']
+    player_matches = player_matches[['match-completed-at', 'name', 'winner', 'loser', 'winner_elo_display', 'loser_elo_display', 'player_elo', "opponent", "W", "L"]]
+    player_matches.columns = ['Date', 'Tournament', 'Winner', 'Loser', 'Winner ELO (result)', 'Loser ELO (result)', 'Player ELO', "Opponent", "W", "L"]
 
     return player_matches
-
-
-def get_top_opponents(player_matches, player_name):
-    """ Returns a dict, keyed by name of dicts with wins and losses"""
-    output = {}
-    for k,i in player_matches.iterrows():
-        if (i["Loser"] != player_name):
-            if i["Loser"] not in output:
-                output[i["Loser"]] = {"wins": 0, "losses": 0}
-            output[i["Loser"]]["wins"] += 1
-        else:
-            if i["Winner"] not in output:
-                output[i["Winner"]] = {"wins": 0, "losses": 0}
-            output[i["Winner"]]["losses"] += 1
-    return output
 
 @blueprint.route('/<player_name>')
 def show_player_stats(player_name):
@@ -101,7 +92,6 @@ def show_player_stats(player_name):
     matches = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/match_log.csv'))
 
     player = dict(players[players["player_name"] == player_name].iloc[0])
-
     player_matches = get_player_matches_df(matches, player_name)
 
     formatters = {
@@ -110,7 +100,10 @@ def show_player_stats(player_name):
     }
 
     pd.set_option('display.max_colwidth', 100)
-    match_table = Markup(player_matches.to_html(index=False, formatters=formatters, escape=False, float_format='%.0f'))
+    player_match_log = player_matches.copy()
+    player_match_log = player_match_log[['Date', 'Tournament', 'Winner', 'Loser', 'Winner ELO (result)', 'Loser ELO (result)', 'Player ELO']]
+    match_table = Markup(player_match_log.to_html(classes=["table-striped", "table"], index=False, formatters=formatters, escape=False, float_format='%.0f'))
+
     chart = build_elo_history(player_matches)
 
     experienced_players = players.loc[players['xp'] >= app.config['XP_THRESHOLD']]
@@ -125,24 +118,19 @@ def show_player_stats(player_name):
     # @TODO: fix this column name
     player['name'] = player['player_name']
 
-    stupid = []
-    # This is stupid...
-    for k,v in get_top_opponents(player_matches, player["name"]).items():
-        row = v
-        row["Name"] = k
-        stupid.append(row)
 
-    df = pd.DataFrame(stupid)
-    df["total"] = df["wins"] + df["losses"]
-    df.sort_values("total", inplace=True, ascending=False)
+    pp(player_matches.head())
+    pt = pd.pivot_table(player_matches, index=["Opponent"], values=["W","L"], aggfunc=np.sum)
+    pt["Total"] = pt["W"] + pt["L"]
+    pt.sort_values("Total", inplace=True, ascending=False)
+
+    pp(pt.head())
 
     # @TODO: Centralize this.
     formatters = {
-        'Name': lambda x: '<a href="{}">{}</a>'.format(url_for('player.show_player_stats', player_name=x), x),
-        #"Win percentage": lambda x: "{}%".format(x)
+        'Name': lambda x: '<a href="{}">{}</a>'.format(url_for('player.show_player_stats', player_name=x), x)
     }
 
-
-    top_opponents = Markup(df.head(20).to_html(escape=False,formatters = formatters))
+    top_opponents = Markup(pt.head(10).to_html(index=True, classes=["table-striped", "table"], escape=False,formatters = formatters))
 
     return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=elo_stddev_chart, top_opponents=top_opponents)
