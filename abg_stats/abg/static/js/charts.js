@@ -33,7 +33,7 @@ $(function () {
         //   {"from": 75, "to": 100, "color": '#AAAAFF'},
         // ];
 
-      
+
         elo_chart_vars['yAxis'][1]['labels'] = {
                 formatter: function () {
                     return this.value + '%';
@@ -66,7 +66,7 @@ $(function () {
         plotOptions: {
             spline: {
                 marker: {
-                    radius: 4,
+                    radius: 1,
                     lineColor: '#666666',
                     lineWidth: 1
                 },
