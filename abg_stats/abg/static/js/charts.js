@@ -24,9 +24,8 @@ $(function () {
       }
       if (elo_chart_vars) {
         console.log(elo_chart_vars);
-        elo_chart_vars['series'][0]['tooltip'] = {'valueDecimals': 2};
-        elo_chart_vars['series'][0]['pointStart'] = Date.UTC(2015, 0, 1),
-        elo_chart_vars['series'][0]['pointIntervalUnit']= 'year';
+        // elo_chart_vars['series'][0]['pointStart'] = Date.UTC(2015, 0, 1),
+        // elo_chart_vars['series'][0]['pointIntervalUnit']= 'year';
         aelo_chart_vars = $.extend(true, elo_chart_vars,{
         chart: {
             type: 'spline',
@@ -36,11 +35,11 @@ $(function () {
             type: 'datetime',
             tickInterval: 24 * 3600*1000 * 30
         },
-        yAxis: {
-            title: {
-                text: 'ELO'
-            },
-        },
+        // yAxis: {
+        //     title: {
+        //         text: 'ELO'
+        //     },
+        // },
         tooltip: {
             crosshairs: true,
             shared: true

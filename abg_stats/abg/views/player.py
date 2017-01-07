@@ -47,15 +47,34 @@ def build_elo_dist_chart(df):
     return serialize(df, render_to="elo_stddev_chart", output_type="json", title="Compared to all players having experience over {}".format(app.config['XP_THRESHOLD']))
 
 def build_elo_history(player_matches):
+    # chartdf = player_matches[['Date', 'Player ELO']]
+    #
+    # chartdf["Date"] = pd.DatetimeIndex(chartdf["Date"]).astype(int) / 1000 / 1000
+    # chartdf.set_index("Date", inplace=True)
+
     chartdf = player_matches[['Date', 'Player ELO']]
 
-    chartdf["Date"] = pd.DatetimeIndex(chartdf["Date"]).astype(int) / 1000 / 1000
+    winrate_chart = player_matches[["Date", "W"]]
+    winrate_chart["wins"] = winrate_chart['W'].cumsum()
+    winrate_chart["dumb"] = 1
+    winrate_chart["count"] = winrate_chart["dumb"].cumsum()
+    winrate_chart["Win Rate"] = winrate_chart["wins"] / winrate_chart["count"]
+    winrate_chart = winrate_chart[["Date", "Win Rate"]]
+
+    chartdf["Date"] = pd.DatetimeIndex(chartdf["Date"])
+    chartdf["Win Rate"] = winrate_chart["Win Rate"]
     chartdf.set_index("Date", inplace=True)
+    z = chartdf.resample('m').mean()
+    z = z.fillna(method='bfill')
+    
+    z["Player ELO"] = z["Player ELO"].map(lambda x: round(x))
+    z["Win Rate"] = z["Win Rate"].map(lambda x: round(x * 100))
+
     #pp(chartdf.index)
     #grouped = pd.groupby(chartdf,by=[chartdf.index.month,chartdf.index.year])["Player ELO"].mean()
     #chartdf["Player_ELO_rolling"] = pd.rolling_mean(chartdf["Player ELO"], window=5)
     #rouped = chartdf[["Player_ELO_rolling"]]
-    return serialize(chartdf, render_to='elo_chart', output_type='json', title="ELO history")
+    return serialize(z, secondary_y = ["Win Rate"], render_to='elo_chart', output_type='json', title="ELO and win rate history")
 
 def get_player_matches_df(matches, player_name):
     player_matches = matches[(matches['player1-name'] == player_name) | (matches['player2-name'] == player_name)]
@@ -75,11 +94,28 @@ def get_player_matches_df(matches, player_name):
     player_loser["opponent"] = player_loser["winner"]
     player_matches = pd.concat([player_winner, player_loser]).sort_values("match-completed-at")
 
+    matches["length"] = matches["player1-score"] + matches["player2-score"]
+    matches["xp"] = matches["length"].cumsum()
+
     float_format = lambda x: "{0:.0f}".format(x)
     player_matches["winner_elo_display"] = player_matches["winner_elo_in"].map(float_format) + " (" + player_matches["winner_elo"].map(float_format)  + ")"
     player_matches["loser_elo_display"] = player_matches["loser_elo_in"].map(float_format)  + " (" + player_matches["loser_elo"].map(float_format)  + ")"
-    player_matches = player_matches[['match-completed-at', 'name', 'winner', 'loser', 'winner_elo_display', 'loser_elo_display', 'player_elo', "opponent", "W", "L"]]
-    player_matches.columns = ['Date', 'Tournament', 'Winner', 'Loser', 'Winner ELO (result)', 'Loser ELO (result)', 'Player ELO', "Opponent", "W", "L"]
+    #player_matches = player_matches[['match-completed-at', 'name', 'winner', 'loser', 'winner_elo_display', 'loser_elo_display', 'player_elo', "opponent", "W", "L", "length", "xp"]]
+    player_matches.rename(columns={
+    'match-completed-at':'Date',
+    'name': 'Tournament',
+    'winner':  'Winner',
+    'loser': 'Loser',
+    'winner_elo_display': 'Winner ELO (result)',
+    'loser_elo_display':  'Loser ELO (result)',
+    'player_elo': 'Player ELO',
+    "opponent":  "Opponent",
+    "W": "W",
+    "L": "L",
+    "length": "Length",
+    "xp": "Experience"
+    }, inplace=True)
+
 
     return player_matches
 
