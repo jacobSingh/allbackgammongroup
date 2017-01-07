@@ -75,7 +75,7 @@ def get_player_matches_df(matches, player_name):
     player_loser["opponent"] = player_loser["winner"]
     player_matches = pd.concat([player_winner, player_loser]).sort_values("match-completed-at")
 
-    float_format = lambda x: "{%.0f}".format(x)
+    float_format = lambda x: "{0:.0f}".format(x)
     player_matches["winner_elo_display"] = player_matches["winner_elo_in"].map(float_format) + " (" + player_matches["winner_elo"].map(float_format)  + ")"
     player_matches["loser_elo_display"] = player_matches["loser_elo_in"].map(float_format)  + " (" + player_matches["loser_elo"].map(float_format)  + ")"
     player_matches = player_matches[['match-completed-at', 'name', 'winner', 'loser', 'winner_elo_display', 'loser_elo_display', 'player_elo', "opponent", "W", "L"]]
@@ -118,13 +118,9 @@ def show_player_stats(player_name):
     # @TODO: fix this column name
     player['name'] = player['player_name']
 
-
-    pp(player_matches.head())
     pt = pd.pivot_table(player_matches, index=["Opponent"], values=["W","L"], aggfunc=np.sum)
     pt["Total"] = pt["W"] + pt["L"]
     pt.sort_values("Total", inplace=True, ascending=False)
-
-    pp(pt.head())
 
     # @TODO: Centralize this.
     formatters = {
