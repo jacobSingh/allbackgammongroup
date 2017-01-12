@@ -134,12 +134,15 @@ def set_tournament_types(df):
     return df
 
 def fix_champ_dates(df):
-    def f(x):
-        date = x.split(" ")[1]
-        return parser.parse(date)
+    def f(row):
+        if ("Champ-Challenger" not in row["name"]):
+            return pd.Series([row["match-completed-at"]])
+        else:
+            date = row["name"].split(" ")[1]
 
-    
-    df["match-completed-at"] = df[df["name"].str.contains("Champ-Challenger")]["name"].apply(f)
+            return pd.Series([parser.parse(date)])
+
+    df[["match-completed-at"]] = df.apply(f, axis=1)
     return df
 
 
