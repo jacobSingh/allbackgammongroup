@@ -15,7 +15,7 @@ class Config(object):
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    XP_THRESHOLD = 200
+    XP_THRESHOLD = 100
     DATA_DIR = PROJECT_ROOT + "/data"
 
 
