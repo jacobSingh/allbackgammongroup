@@ -9,13 +9,13 @@ $(function () {
           },
           xAxis: {
               plotLines: [{
-              color: 'red', // Color value
-              dashStyle: 'longdashdot', // Style of the plot line. Default to solid
-              value: player["ELO"], // Value of where the line will appear
-              width: 2, // Width of the line
-              label: {
-                text: player["player_name"] + " " + Math.round(player["ELO"]) + "  (" + player["percentile"] + " percentile)"
-              }
+                color: 'red', // Color value
+                dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+                value: player["ELO"], // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                  text: player["player_name"] + " " + Math.round(player["ELO"]) + "  (" + player["percentile"] + " percentile)"
+                }
             }]
           }
         });

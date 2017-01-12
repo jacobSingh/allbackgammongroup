@@ -95,6 +95,13 @@ def main(argv):
     elif(args[0] == "movetest"):
         abg = ABG_Challonge(username, api_key, test=True)
         loop.run_until_complete(abg.move_tournaments("allbackgammon"))
+    elif args[0] == "add_champ_tournament":
+        abg = ABG_Challonge(username, api_key, test=True)
+        date = args[1]
+        date = dateutil.parser.parse(date)
+        winner = args[2]
+        loser = args[3]
+        loop.run_until_complete(abg.add_champ_tournament(date, winner, loser, subdomain="allbackgammon"))
     elif(args[0] == "rip"):
         abg = ABG_Challonge(username, api_key)
         #writer = CSV_Writer(output_csv)

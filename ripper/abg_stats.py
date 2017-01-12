@@ -31,12 +31,14 @@ def main(argv):
     input_csv = None
     elo_rampup = 400
     players_file = None
+    player_name_map = None
+    player_name_map_file = None
     if os.path.exists('./abg.ini'):
         config=configparser.ConfigParser()
         config.read('./abg.ini')
 
     try:
-      opts, args=getopt.getopt(argv, "i:e:f:r:")
+      opts, args=getopt.getopt(argv, "i:e:f:r:m:")
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -51,6 +53,8 @@ def main(argv):
             elo_rampup = arg
         elif opt in ('-p'):
             players_file = arg
+        elif opt in ('-m'):
+            player_name_map_file = arg
 
     # @todo: Add actions to clean and actions to compute ELO.
     # @TODO: consider making ELO calc generic
@@ -90,10 +94,17 @@ def main(argv):
 
     abg1 = ABG_Stats(abg.copy(), players_df.copy())
 
+    if (player_name_map_file is not None):
+        abg1.fix_names(player_name_map_file)
+
     #ELO Calcs across all matches
     abg1.standard_elo_calc()
     abg1.add_running_win_loss_columns()
+    abg1.add_zodiac()
+
+
     abg1.export(output_dir)
+
         #loop.run_until_complete(abg.move_tournaments("allbackgammon"))
 
 

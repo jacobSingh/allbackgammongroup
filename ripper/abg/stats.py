@@ -6,6 +6,16 @@ import re
 import math
 import logging
 from abg.elo import ELO
+from bisect import bisect
+
+def zodiac_sign(d):
+    m = d.month
+    d = d.day
+    signs = [(1,20,"Cap"), (2,18,"Aqu"), (3,20,"Pis"), (4,20,"Ari"),
+         (5,21,"Tau"), (6,21,"Gem"), (7,22,"Can"), (8,23,"Leo"),
+         (9,23,"Vir"), (10,23,"Lib"), (11,22,"Sco"), (12,22,"Sag"),
+         (12,31,"Cap")]
+    return signs[bisect(signs,(m,d))][2]
 
 l = logging.getLogger("abg")
 
@@ -224,6 +234,26 @@ class ABG_Stats:
 
         self.matches["winner_elo_in"] = self.matches["winner_elo"] - self.matches["winner_elo_change"]
         self.matches["loser_elo_in"] = self.matches["loser_elo"] - self.matches["loser_elo_change"]
+
+    def add_zodiac(self):
+        self.matches["zodiac"] = self.matches["match-completed-at"].apply(zodiac_sign)
+
+    def fix_names(self, map_csv):
+        """ Takes a CSV file name where format is name|alias1|alias2|alias3, etc """
+        map_df = pd.read_csv(map_csv)
+        map_df.set_index("name", inplace=1)
+        replacements = []
+        search = []
+        for k,v in map_df.to_dict("index").items():
+            for x in v.values():
+                if (type(x) == str):
+                    replacements.append(k)
+                    search.append(x)
+
+        self.matches["player1-name"] = self.matches["player1-name"].replace(search, replacements)
+        self.matches["player2-name"] = self.matches["player2-name"].replace(search, replacements)
+
+
 
 # abg = pd.read_csv('data/abg.csv', parse_dates=["match-completed-at", "created-at", "completed-at", "match-completed-at", "created-at"], dtype={"match-scores-csv": str, "predict-the-losers-bracket": str, "start-at": str,"match-underway-at": str })
 # abg = clean_matches(abg)

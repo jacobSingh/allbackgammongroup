@@ -30,14 +30,11 @@ from io import BytesIO
 import base64
 import random
 
-l.error("Here")
 import scipy.stats as stats
 import scipy
 from pandas_highcharts.core import serialize
-l.error("Scipy and highcharts")
 from flask_assets import Bundle, Environment
 import math
-l.error("Imports done")
 
 blueprint = Blueprint('player', __name__, static_folder='../static', template_folder='../templates')
 
@@ -151,6 +148,7 @@ def show_player_stats(player_name):
     elo_dist_df = elo_dist_df.set_index("ELO")
     z_score = (player["ELO"] - np.mean(elos)) / np.std(elos)
     elo_stddev_chart = build_elo_dist_chart(elo_dist_df)
+    #random_compare_players()
     player["percentile"] = round((1 - scipy.stats.norm.sf(z_score)) * 100)
 
     # @TODO: fix this column name

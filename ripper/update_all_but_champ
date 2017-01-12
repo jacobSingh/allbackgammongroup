@@ -33,7 +33,9 @@ master_file="$1/../all_abg_log.csv"
 if [ $(ls "$master_file") ]; then
   # @TODO: Make this less hacky... could probably use mtime of the file, or at least pandas and parse the CSV properly
   start_date=`get_last_date $master_file`
-  ./abg_challonge.py -c ../abg.ini -d"$start_date" -o "$master_file" rip && ./abg_stats.py -e"Champion and Challenger" $1 < $1/../all_abg_log.csv
+  ./abg_challonge.py -c ../abg.ini -d"$start_date" -o "$master_file" rip &&
+    ./abg_stats.py -m "../player_map.csv" -e"Champion and Challenger" $1 < $1/../all_abg_log.csv
 else
-  ./abg_challonge.py -c ../abg.ini -o "$master_file" rip && ./abg_stats.py -e"Champion and Challenger" $1 < $1/../all_abg_log.csv
+  ./abg_challonge.py -c ../abg.ini -o "$master_file" rip && ./abg_stats.py -m
+  '../player_map.csv' -e"Champion and Challenger" $1 < $1/../all_abg_log.csv
 fi
