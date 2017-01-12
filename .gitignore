@@ -49,3 +49,6 @@ docs/_build
 
 # Virtualenvs
 env/
+
+#Generated assets 
+abg_stats/static/js/common.js
