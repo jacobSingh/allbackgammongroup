@@ -5,7 +5,7 @@ import logging
 import sys,os
 import configparser
 import getopt
-from abg.stats import ABG_Stats, clean_matches, set_tournament_types, build_players, read_match_csv
+from abg.stats import ABG_Stats, clean_matches, set_tournament_types, build_players, read_match_csv, fix_names
 import datetime
 
 l = logging.getLogger('abg')
@@ -72,7 +72,7 @@ def main(argv):
     l.info("Read in {} matches".format(len(abg)))
     abg = clean_matches(abg)
     if (player_name_map_file is not None):
-        abg1.fix_names(player_name_map_file)
+        fix_names(abg, player_name_map_file)
 
     # Finds the "type" or group of tournament
     abg = set_tournament_types(abg)

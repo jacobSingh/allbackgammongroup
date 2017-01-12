@@ -69,6 +69,23 @@ def clean_matches(abg):
 
     return abg
 
+def fix_names(abg, map_csv):
+    """ Takes a CSV file name where format is name|alias1|alias2|alias3, etc """
+    map_df = pd.read_csv(map_csv)
+    map_df.set_index("name", inplace=1)
+    replacements = []
+    search = []
+    for k,v in map_df.to_dict("index").items():
+        for x in v.values():
+            if (type(x) == str):
+                replacements.append(k)
+                search.append(x)
+
+    abg["player1-name"] = abg["player1-name"].replace(search, replacements)
+    abg["player2-name"] = abg["player2-name"].replace(search, replacements)
+
+
+
 
 def build_players(abg):
     #abg["player1-win_chance"] =
@@ -237,23 +254,6 @@ class ABG_Stats:
 
     def add_zodiac(self):
         self.matches["zodiac"] = self.matches["match-completed-at"].apply(zodiac_sign)
-
-    def fix_names(self, map_csv):
-        """ Takes a CSV file name where format is name|alias1|alias2|alias3, etc """
-        map_df = pd.read_csv(map_csv)
-        map_df.set_index("name", inplace=1)
-        replacements = []
-        search = []
-        for k,v in map_df.to_dict("index").items():
-            for x in v.values():
-                if (type(x) == str):
-                    replacements.append(k)
-                    search.append(x)
-
-        self.matches["player1-name"] = self.matches["player1-name"].replace(search, replacements)
-        self.matches["player2-name"] = self.matches["player2-name"].replace(search, replacements)
-
-
 
 # abg = pd.read_csv('data/abg.csv', parse_dates=["match-completed-at", "created-at", "completed-at", "match-completed-at", "created-at"], dtype={"match-scores-csv": str, "predict-the-losers-bracket": str, "start-at": str,"match-underway-at": str })
 # abg = clean_matches(abg)
