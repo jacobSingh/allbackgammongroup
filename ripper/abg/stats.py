@@ -7,6 +7,7 @@ import math
 import logging
 from abg.elo import ELO
 from bisect import bisect
+from dateutil import parser
 
 def zodiac_sign(d):
     m = d.month
@@ -130,6 +131,15 @@ def tournament_type_finder(tournament_name):
 
 def set_tournament_types(df):
     df["tournament_type"] = df["name"].apply(tournament_type_finder)
+    return df
+
+def fix_champ_dates(df):
+    def f(x):
+        date = x.split(" ")[1]
+        return parser.parse(date)
+
+    
+    df["match-completed-at"] = df[df["name"].str.contains("Champ-Challenger")]["name"].apply(f)
     return df
 
 

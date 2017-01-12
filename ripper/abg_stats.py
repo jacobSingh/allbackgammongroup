@@ -5,7 +5,7 @@ import logging
 import sys,os
 import configparser
 import getopt
-from abg.stats import ABG_Stats, clean_matches, set_tournament_types, build_players, read_match_csv, fix_names
+from abg.stats import ABG_Stats, clean_matches, set_tournament_types, build_players, read_match_csv, fix_names, fix_champ_dates
 import datetime
 
 l = logging.getLogger('abg')
@@ -76,6 +76,10 @@ def main(argv):
 
     # Finds the "type" or group of tournament
     abg = set_tournament_types(abg)
+
+    # Fix dates for added champ/challenger
+    abg = fix_champ_dates(abg)
+
     if include_tournaments and exclude_tournaments:
         raise Exception("You can use Include or Exclude tournaments, not both")
     if include_tournaments:
@@ -98,6 +102,7 @@ def main(argv):
     abg1 = ABG_Stats(abg.copy(), players_df.copy())
 
     #ELO Calcs across all matches
+
     abg1.standard_elo_calc()
     abg1.add_running_win_loss_columns()
     abg1.add_zodiac()
