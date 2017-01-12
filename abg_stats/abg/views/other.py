@@ -48,9 +48,12 @@ def home():
         return pd.Series([wins, losses])
 
     experienced_players[["Wins", "Losses"]] = experienced_players.apply(win_record, axis=1, args=[matches])
-
-
+    experienced_players["Rank"] = experienced_players['ELO'].rank(ascending=0)
+    experienced_players.sort_values("Rank")
+    #experienced_players["Rank"] = 1
+    #experienced_players["Rank"] = experienced_players["Rank"].cumsum()
     elo_table = get_main_elo_table_html(experienced_players)
+
 
     funnynames = ['statocopia', 'lies and damn lies', 'nerdotica!', 'useless facts and figures']
 
@@ -94,12 +97,12 @@ def dl_match_log():
                      as_attachment=True)
 
 def get_main_elo_table_html(df):
-    df = df[['player_name', 'ELO', 'xp', "Wins", "Losses"]]
+    df = df[['Rank', 'player_name', 'ELO', 'xp', "Wins", "Losses"]]
     df["Win percentage"] = df["Wins"] / (df["Wins"] + df["Losses"]) * 100
-    df.columns = ['Player', 'ELO', 'Experience',"Wins", "Losses","Win percentage"]
+    df.columns = ["Rank", 'Player', 'ELO', 'Experience',"Wins", "Losses","Win percentage"]
     formatters = {
         'Player': lambda x: '<a href="{}">{}</a>'.format(url_for('player.show_player_stats', player_name=x), x),
         #"Win percentage": lambda x: "{}%".format(x)
     }
     pd.set_option('display.max_colwidth', 100)
-    return df.to_html(classes=["table-striped", "table"], formatters=formatters, escape=False, float_format='%2.0f')
+    return df.to_html(classes=["table-striped", "table"], index=False, formatters=formatters, escape=False, float_format='%2.0f')
