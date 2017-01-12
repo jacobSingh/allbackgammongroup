@@ -71,6 +71,9 @@ def main(argv):
     abg = read_match_csv(input_csv)
     l.info("Read in {} matches".format(len(abg)))
     abg = clean_matches(abg)
+    if (player_name_map_file is not None):
+        abg1.fix_names(player_name_map_file)
+
     # Finds the "type" or group of tournament
     abg = set_tournament_types(abg)
     if include_tournaments and exclude_tournaments:
@@ -93,9 +96,6 @@ def main(argv):
     players_df.index.name = 'player_name'
 
     abg1 = ABG_Stats(abg.copy(), players_df.copy())
-
-    if (player_name_map_file is not None):
-        abg1.fix_names(player_name_map_file)
 
     #ELO Calcs across all matches
     abg1.standard_elo_calc()
