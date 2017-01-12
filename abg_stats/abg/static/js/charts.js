@@ -1,6 +1,6 @@
 $(function () {
   $(document).ready(function() {
-    if (typeof elo_stddev_chart_vars != 'undefined' && elo_stddev_chart_vars != {}) {
+    if (typeof elo_stddev_chart_vars != 'undefined') {
 
         $.extend(true, elo_stddev_chart_vars, {
           chart: {
@@ -22,7 +22,7 @@ $(function () {
 
         new Highcharts.Chart(elo_stddev_chart_vars)
       }
-      if (elo_chart_vars) {
+      if (typeof elo_chart_vars != 'undefined') {
 
         elo_chart_vars['yAxis'][1]["min"] = 0;
         elo_chart_vars['yAxis'][1]["max"] = 100;
@@ -42,7 +42,6 @@ $(function () {
 
         elo_chart_vars['series'][1]["tooltip"] = {"pointFormat":  '{point.y}%'};
 
-        console.log(elo_chart_vars);
         // elo_chart_vars['series'][0]['pointStart'] = Date.UTC(2015, 0, 1),
         // elo_chart_vars['series'][0]['pointIntervalUnit']= 'year';
         aelo_chart_vars = $.extend(true, elo_chart_vars,{
@@ -73,7 +72,6 @@ $(function () {
             }
         },
     });
-      console.log(elo_chart_vars)
         new Highcharts.Chart(elo_chart_vars)
       }
   });

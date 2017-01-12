@@ -6,6 +6,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required, login_user, logout_user
 from flask import Markup
 from flask import send_file
+from flask import abort
 l.error("flask")
 from abg_stats.extensions import login_manager
 from abg_stats.public.forms import LoginForm
@@ -126,7 +127,11 @@ def show_player_stats(player_name):
     players = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/players_elo.csv'))
     matches = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/match_log.csv'))
 
-    player = dict(players[players["player_name"] == player_name].iloc[0])
+    try:
+        player = dict(players[players["player_name"] == player_name].iloc[0])
+    except:
+        abort(404)
+
     player_matches = get_player_matches_df(matches, player_name)
 
     formatters = {

@@ -149,18 +149,18 @@ class ABG_Challonge:
         l.info("moved {}".format(moved))
 
     async def add_champ_tournament(self, date, winner, loser, **params):
-        name = "Champ-Challenger " + str(date)
+        name = "Champ-Challenger {}-{}-{}".format(date.year, date.month, date.day)
         url = "champ{}{}{}".format(date.year, date.month, date.day)
         url += str(random.randint(0,100))
 
-        params.update({"accept-attachments": "1"})
+        # params.update({"accept-attachments": "1"})
         tournament = await self.account.tournaments.create(name, url, **params)
         participants = [winner, loser]
         try:
             await self.account.participants.bulk_add(tournament["id"], participants)
             _t = await self.account.tournaments.start(tournament["id"], include_matches="1")
             matches = _t["matches"]
-            await self.account.matches.update(tournament["id"], matches[0]["id"], scores_csv="9-0", winner_id=str(matches[0]["player1-id"]))
+            await self.account.matches.update(tournament["id"], matches[0]["id"], completed_at=date, scores_csv="9-0", winner_id=str(matches[0]["player1-id"]))
             await self.account.tournaments.finalize(tournament["id"])
 
         finally:

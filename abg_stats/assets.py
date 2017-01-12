@@ -14,9 +14,11 @@ css = Bundle(
 js = Bundle(
     'libs/jQuery/dist/jquery.js',
     'libs/bootstrap/dist/js/bootstrap.js',
+    'abg/js/datatables.min.js',
     'js/plugins.js',
     'libs/highcharts/highcharts.js',
     'abg/js/charts.js',
+    'abg/js/tables.js',
     #filters='jsmin',
     output='public/js/common.js'
 )
