@@ -7,7 +7,7 @@
       <h1>About</h1>
       <p>This is an independent project started and coded by me, <a href="http://jacobsingh.name">Jacob Singh</a> to learn some data analysis.  I hope you enjoy it. Please don't hesitate to give feedback.</p>
       <h2> Thanks </h2>
-      <p>Huge thank you to Travis Roberts for tons of help on all aspects of the project, and Paul, Maggie and Alan for helping to clean up challonge, and giving feedback and encouragement! </p>
+      <p> Huge thank you to Travis Roberts for tons of help on all aspects of the project, and Paul, Maggie and Alan for helping to clean up challonge, and giving feedback and encouragement! </p>
       <h2> Support </h2>
       <ul>
         <li> Financial: I pay for all the server costs so far.  It's not much, just $10/mo, but if you can sponsor a month or two, that'd be great</li>
@@ -15,6 +15,15 @@
         <li> Ideas: If you have any get in touch.</>
       </ul>
       <p>You can get in touch by <a href="mailto:jacobsingh@gmail.com">email</a>.</p>
+      <h2> What the @#$% happened to my ELO? </h2>
+      <p> There are a few difference in how we are tracking ELOs now vs. before.  Why it might be different?</p>
+      <ul>
+        <li> We are including Champion / Challenger matches. These should really have been ranked from the beginning and the admins decided we might as well include them. </li>
+        <li> About 40% of the matches in Challonge were "quick advance" matches. This means that no scores were recorded, just a winner.  In this case, we set the score to 7-0 which is near the average match length.</li>
+        <li> Order. Travis was copy-pasting the match log from challonge into excel.  This site grabs the data directly from challonge's database via an API.  So this site uses the "match completed date", whereas the old stats used the "Match updated date".  It's a small detail, but it changes the order some matches were played in which effects ELO</li>
+        <li> Names. Some of you have a lot of aliases in challonge.  We did our best to consolidate them if any alias had more than 20 experience, but we may have missed a few</li>
+      </ul>
+
     </div>
 </div>
 {% endblock %}
