@@ -12,15 +12,14 @@
     </button>
     <a class="navbar-brand" href="{{ url_for('public.home') }}">
 
-      ABG
+      Home
 
     </a>
   </div>
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse navbar-ex1-collapse">
     <ul class="nav navbar-nav">
-      <li><a href="{{ url_for('public.home') }}">Home</a></li>
-      <li><a href="{{ url_for('abg.home') }}">ELO Table</a></li>
+      <li><a href="{{ url_for('abg.home') }}">ELO Rankings</a></li>
       <li><a href="{{ url_for('public.about') }}">About</a></li>
     </ul>
     {% if current_user and current_user.is_authenticated %}
