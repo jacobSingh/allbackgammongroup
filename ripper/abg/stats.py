@@ -165,6 +165,7 @@ class ABG_Stats:
         return out
 
     def standard_elo_calc(self):
+        self.matches.sort_values("match-completed-at", inplace=True)
         self.matches[['player1_ELO_change','player2_ELO_change', "player1_ELO", "player2_ELO"]] = self.matches.apply(self.set_elo, axis=1)
 
     def export(self, output_directory):
