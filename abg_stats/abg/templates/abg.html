@@ -9,6 +9,14 @@
 </div><!-- /.jumbotron -->
 
 <div class="body-content">
+  {% if minxp == 0 %}
+  <h3>All Players</h3>
+  {% else %}
+  <h3>All Players over {{minxp}} experience</h3>
+  <a href="?minxp=0">All players</a>
+  {% endif %}
+
+
   {{table}}
   {{scatter}}
   <div class="row">

@@ -40,7 +40,12 @@ def home():
     app = flask.current_app
     matches = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/match_log.csv'))
     players = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/players_elo.csv'))
-    experienced_players = players.loc[players['xp'] >= app.config['XP_THRESHOLD']]
+
+    minxp = request.args.get('minxp')
+    if minxp is None:
+        minxp = app.config['XP_THRESHOLD']
+    minxp = int(minxp)
+    experienced_players = players.loc[players['xp'] >= minxp]
 
     def win_record(v, matches):
         wins = len(matches[matches["winner"] == v["player_name"]])
@@ -66,7 +71,8 @@ def home():
     abg_vars = {
         'sillyname': random.choice(funnynames),
         'table': Markup(elo_table),
-        'scatter': Markup('<img src="data:image/png;base64,{}" />'.format(plot_url.decode('utf-8')))
+        'scatter': Markup('<img src="data:image/png;base64,{}" />'.format(plot_url.decode('utf-8'))),
+        'minxp': minxp
     }
 
     return render_template('abg.html', **abg_vars)
