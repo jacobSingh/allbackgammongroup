@@ -54,6 +54,7 @@ class ABG_Challonge:
             # @NOTE: THis might be a problem if IDs clash... unlikely
             for player in tournament["participants"]:
                 player = { k: player[k] for k in ["id", "name", "group-player-ids"] }
+                player["name"] = player["name"].strip()
                 # tournament["participants"] = { k: tournament[your_key] for k in ["id", "name", "matches", "participants"] }
                 if tournament["group-stages-enabled"] == True:
                     if len(player["group-player-ids"]) > 0:
