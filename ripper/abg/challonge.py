@@ -55,6 +55,9 @@ class ABG_Challonge:
             for player in tournament["participants"]:
                 player = { k: player[k] for k in ["id", "name", "group-player-ids"] }
                 player["name"] = player["name"].strip()
+                ## Very stupid line because someone shoved these Zero Width Spaces into player names
+                player["name"] = player["name"].replace(u'\u200B','')
+
                 # tournament["participants"] = { k: tournament[your_key] for k in ["id", "name", "matches", "participants"] }
                 if tournament["group-stages-enabled"] == True:
                     if len(player["group-player-ids"]) > 0:
