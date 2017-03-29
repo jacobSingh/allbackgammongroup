@@ -48,8 +48,8 @@ def home():
     experienced_players = players.loc[players['xp'] >= minxp]
 
     def win_record(v, matches):
-        wins = len(matches[matches["winner"] == v["player_name"]])
-        losses = len(matches[matches["loser"] == v["player_name"]])
+        wins = len(matches[(matches["winner"] == v["player_name"]) & (matches["DQ"] == False)])
+        losses = len(matches[(matches["loser"] == v["player_name"]) & (matches["DQ"] == False)])
         return pd.Series([wins, losses])
 
     experienced_players[["Wins", "Losses"]] = experienced_players.apply(win_record, axis=1, args=[matches])
@@ -60,7 +60,7 @@ def home():
     elo_table = get_main_elo_table_html(experienced_players)
 
 
-    funnynames = ['statocopia', 'lies and damn lies', 'nerdotica!', 'useless facts and figures']
+    funnynames = ['statocopia', 'lies and damn lies', 'sssssssstat!', 'useless facts and figures', "These are the reasons and these are the numbers", "The hard truth"]
 
     img = BytesIO()
     chart = sns.lmplot('ELO', 'xp', data=experienced_players, fit_reg=False)
@@ -111,4 +111,4 @@ def get_main_elo_table_html(df):
         #"Win percentage": lambda x: "{}%".format(x)
     }
     pd.set_option('display.max_colwidth', 100)
-    return df.to_html(classes=["table-striped", "table"], index=False, formatters=formatters, escape=False, float_format='%2.0f')
+    return df.to_html(classes=["table-striped", "table"], index=False, formatters=formatters, escape=False)

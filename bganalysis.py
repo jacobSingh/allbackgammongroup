@@ -48,4 +48,6 @@ subprocess.Popen(["git", "push"], cwd=ghpages).wait()
 
 
 print("exported to " + output)
+print("http://jacobsingh.github.io/bg-stat-export/"
+        + os.path.basename(match_name))
 #`cat {}`.format(f)

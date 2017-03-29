@@ -50,9 +50,11 @@ def build_elo_history(player_matches):
     # chartdf["Date"] = pd.DatetimeIndex(chartdf["Date"]).astype(int) / 1000 / 1000
     # chartdf.set_index("Date", inplace=True)
 
-    chartdf = player_matches[['Date', 'Player ELO']]
+    matches_without_dq = player_matches[player_matches["DQ"] == False]
 
-    winrate_chart = player_matches[["Date", "W"]]
+    chartdf = matches_without_dq[['Date', 'Player ELO']]
+    winrate_chart = matches_without_dq[["Date", "W"]]
+    
     winrate_chart["wins"] = winrate_chart['W'].cumsum()
     winrate_chart["dumb"] = 1
     winrate_chart["count"] = winrate_chart["dumb"].cumsum()
