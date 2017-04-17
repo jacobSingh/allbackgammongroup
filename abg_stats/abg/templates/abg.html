@@ -13,9 +13,14 @@
   <h3>All Players</h3>
   {% else %}
   <h3>All Players over {{minxp}} experience</h3>
-  <a href="?minxp=0">All players</a>
+  <a href="?minxp=0">All players</a> |
   {% endif %}
 
+  {% if only_active %}
+  <p>(only showing those active in the last 90 days)</p>
+  {% else %}
+  <a href="?only_active=true&minxp=0">All active players (last 90 days)</a>
+  {% endif %}
 
   {{table}}
   {{scatter}}

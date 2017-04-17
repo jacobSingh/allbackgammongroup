@@ -29,6 +29,7 @@ import scipy
 from pandas_highcharts.core import serialize
 from flask_assets import Bundle, Environment
 import math
+import datetime
 
 blueprint = Blueprint('abg', __name__, static_folder='../static', template_folder='../templates')
 
@@ -42,10 +43,18 @@ def home():
     players = pd.read_csv(os.path.join(app.config['DATA_DIR'], 'all_but_champ/players_elo.csv'))
 
     minxp = request.args.get('minxp')
+    only_active = request.args.get('only_active')
     if minxp is None:
         minxp = app.config['XP_THRESHOLD']
     minxp = int(minxp)
+
     experienced_players = players.loc[players['xp'] >= minxp]
+
+    if(only_active):
+        matches["match-completed-at"] = pd.to_datetime(matches["match-completed-at"])
+        last_quarter_matches = matches[matches["match-completed-at"] > (datetime.date.today() + datetime.timedelta(days=-90))]
+        active_player_names = np.unique(last_quarter_matches[["winner", "loser"]])
+        experienced_players = experienced_players[experienced_players["player_name"].isin(active_player_names)]
 
     def win_record(v, matches):
         wins = len(matches[(matches["winner"] == v["player_name"]) & (matches["DQ"] == False)])
@@ -72,7 +81,9 @@ def home():
         'sillyname': random.choice(funnynames),
         'table': Markup(elo_table),
         'scatter': Markup('<img src="data:image/png;base64,{}" />'.format(plot_url.decode('utf-8'))),
-        'minxp': minxp
+        'minxp': minxp,
+        'only_active': only_active
+
     }
 
     return render_template('abg.html', **abg_vars)
