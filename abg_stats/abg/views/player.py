@@ -54,7 +54,7 @@ def build_elo_history(player_matches):
 
     chartdf = matches_without_dq[['Date', 'Player ELO']]
     winrate_chart = matches_without_dq[["Date", "W"]]
-    
+
     winrate_chart["wins"] = winrate_chart['W'].cumsum()
     winrate_chart["dumb"] = 1
     winrate_chart["count"] = winrate_chart["dumb"].cumsum()
@@ -161,6 +161,9 @@ def show_player_stats(player_name):
     # @TODO: fix this column name
     player['name'] = player['player_name']
 
+    # I have no idea why I need to do this, but the integer was failing
+    player['xp'] = float(player['xp'])
+
     pt = pd.pivot_table(player_matches, index=["Opponent"], values=["W","L"], aggfunc=np.sum)
     pt["Total"] = pt["W"] + pt["L"]
     pt.sort_values("Total", inplace=True, ascending=False)
@@ -172,4 +175,6 @@ def show_player_stats(player_name):
 
     top_opponents = Markup(pt.head(10).to_html(index=True, classes=["table-striped", "table"], escape=False,formatters = formatters))
 
+    # player = {'ELO': 1817.9601039209867, 'name': 'Peter Ozanne', 'player_name': 'Peter Ozanne', 'xp': 815, 'percentile': 98.0 }
+    # pp(player)
     return render_template('player.html', player=player, match_table=match_table, elo_chart=chart, elo_stddev_chart=elo_stddev_chart, top_opponents=top_opponents)
