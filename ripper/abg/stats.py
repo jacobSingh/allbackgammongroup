@@ -33,6 +33,13 @@ def clean_matches(abg):
     abg.sort_values("match-completed-at", inplace=True)
     del abg["created-at"]
 
+
+    # Edge case to remove matches with multiple scores
+    # @TODO: Support this by splitting and duplicating the row (somehow...)
+    filter = abg['match-scores-csv'].str.contains('^[0-9]+-[0-9]+$', na=False)
+
+    abg = abg[filter]
+
     f = abg["match-scores-csv"].apply(lambda x: pd.Series(str(x).split("-")))
     abg.loc[:,("player1-score")] = f[0]
     #@todo abg["player1-score"].astype(int8)
@@ -131,6 +138,10 @@ def tournament_type_finder(tournament_name):
 
 def set_tournament_types(df):
     df["tournament_type"] = df["name"].apply(tournament_type_finder)
+    return df
+
+def set_tournament_ranking(df):
+    #df.apply()
     return df
 
 def fix_champ_dates(df):

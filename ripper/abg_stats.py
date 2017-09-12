@@ -77,6 +77,9 @@ def main(argv):
     # Finds the "type" or group of tournament
     abg = set_tournament_types(abg)
 
+    # Determines where each player finished in a tournament
+    #abg = set_tournament_ranking(abg)
+
     # Fix dates for added champ/challenger
     abg = fix_champ_dates(abg)
 
